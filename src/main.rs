@@ -5,6 +5,7 @@ use ggez::conf;
 use ggez::event::{self, EventHandler};
 use ggez::graphics;
 use ggez::graphics::{Canvas, Color, DrawMode, DrawParam, GraphicsContext, Image, Mesh, Rect};
+//use ggez::input::keyboard::KeyCode;
 use ggez::input::keyboard::KeyInput;
 use ggez::{Context, GameResult, glam};
 use glam::Vec2;
@@ -39,7 +40,10 @@ impl Dino {
     }
 
     pub fn get_rect(&self) -> Rect {
-        Rect::new(self.position.x, self.position.y, self.w, self.h)
+        // aqui se crea el hitbox cada vez
+        //Rect::new(self.position.x, self.position.y, self.w, self.h)
+        // aqui se devuelve la instancia sincronizada en `set_in_window`
+        self.hitbox
     }
 
     pub fn draw_hitbox(&self, canvas: &mut Canvas, gfx: &mut GraphicsContext) {
@@ -152,6 +156,7 @@ struct MainState {
 
 impl MainState {
     pub fn new(ctx: &mut Context) -> GameResult<MainState> {
+        println!("MainState::new");
         let dino = Dino::new(ctx)?;
         let screen_size = ctx.gfx.drawable_size();
         let screen_width: glam::Vec2 = screen_size.into();
@@ -168,6 +173,26 @@ impl EventHandler for MainState {
         let dt = ctx.time.delta().as_secs_f32();
         let screen_size = ctx.gfx.drawable_size();
 
+        // Reiniciar velocidad cada frame
+        self.dino.speed = Vec2::ZERO;
+
+        // hubo cambios de ggez 0.9 a 0.10 con el manejo de teclas
+        if ctx.keyboard.is_logical_key_pressed(&Key::Named(NamedKey::ArrowRight)) {
+            self.dino.speed.x += 100.0;
+        }
+
+        if ctx.keyboard.is_logical_key_pressed(&Key::Named(NamedKey::ArrowLeft)) {
+            self.dino.speed.x -= 100.0;
+        }
+
+        if ctx.keyboard.is_logical_key_pressed(&Key::Named(NamedKey::ArrowUp)) {
+            self.dino.speed.y -= 100.0;
+        }
+
+        if ctx.keyboard.is_logical_key_pressed(&Key::Named(NamedKey::ArrowDown)) {
+            self.dino.speed.y += 100.0;
+        }
+
         self.dino.update(dt, screen_size.into());
 
         Ok(())
@@ -176,7 +201,7 @@ impl EventHandler for MainState {
     fn draw(&mut self, ctx: &mut Context) -> GameResult {
         let mut canvas = graphics::Canvas::from_frame(ctx, Color::WHITE);
 
-        self.dino.speed = Vec2::new(0., 0.);
+        //self.dino.speed = Vec2::new(0., 0.);
         self.dino.draw(&mut canvas)?;
         self.obstacle.draw(&mut canvas, &mut ctx.gfx)?;
 
@@ -193,7 +218,13 @@ impl EventHandler for MainState {
         canvas.finish(ctx)
     }
 
-    fn key_down_event(&mut self, _ctx: &mut Context, input: KeyInput, _repeat: bool) -> GameResult {
+    fn key_down_event(&mut self, _ctx: &mut Context, _input: KeyInput, _repeat: bool) -> GameResult {
+        // hubo cambios de ggez 0.9 a 0.10 con el manejo de teclas
+        // para este ejemplo se utiliza la validacion de teclas en el metodo update,
+        // para que vaya un poco mas fluido el movimiento
+
+        /*
+        // validado varias teclas a la vez
         if input.event.logical_key == Key::Named(NamedKey::ArrowRight) {
             //println!("KeyCode::Right");
             self.dino.speed.x = 100.0;
@@ -210,7 +241,11 @@ impl EventHandler for MainState {
             //println!("KeyCode::Down");
             self.dino.speed.y = 100.0;
         }
+        */
+
         /*
+        // validado una tecla a la vez
+
         match input.event.logical_key {
             Key::Named(NamedKey::ArrowRight) => {
                 //println!("KeyCode::Right");
@@ -235,6 +270,7 @@ impl EventHandler for MainState {
             _ => {}
         }
         */
+
         Ok(())
     }
 }

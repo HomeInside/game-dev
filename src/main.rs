@@ -31,7 +31,10 @@ impl Dino {
     }
 
     pub fn get_rect(&self) -> Rect {
-        Rect::new(self.position.x, self.position.y, self.w, self.h)
+        // aqui se crea el hitbox cada vez
+        //Rect::new(self.position.x, self.position.y, self.w, self.h)
+        // aqui se devuelve la instancia sincronizada en `set_in_window`
+        self.hitbox
     }
 
     pub fn draw_hitbox(&self) {

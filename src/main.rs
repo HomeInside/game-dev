@@ -121,7 +121,7 @@ fn draw_fps(ctx: &mut Context, canvas: &mut graphics::Canvas) -> GameResult {
     let mut fps_text_layout = graphics::Text::new(fps_text);
     fps_text_layout.set_scale(graphics::PxScale::from(22.0));
 
-    // score en la parte superior izquierda
+    // en la parte superior izquierda
     let fps_text_position = Vec2::new(0.0, 1.0);
     canvas.draw(
         &fps_text_layout,
@@ -156,7 +156,6 @@ struct MainState {
 
 impl MainState {
     pub fn new(ctx: &mut Context) -> GameResult<MainState> {
-        println!("MainState::new");
         let dino = Dino::new(ctx)?;
         let screen_size = ctx.gfx.drawable_size();
         let screen_width: glam::Vec2 = screen_size.into();
@@ -173,7 +172,7 @@ impl EventHandler for MainState {
         let dt = ctx.time.delta().as_secs_f32();
         let screen_size = ctx.gfx.drawable_size();
 
-        // Reiniciar velocidad cada frame
+        // reiniciar velocidad cada frame
         self.dino.speed = Vec2::ZERO;
 
         // hubo cambios de ggez 0.9 a 0.10 con el manejo de teclas
@@ -201,7 +200,6 @@ impl EventHandler for MainState {
     fn draw(&mut self, ctx: &mut Context) -> GameResult {
         let mut canvas = graphics::Canvas::from_frame(ctx, Color::WHITE);
 
-        //self.dino.speed = Vec2::new(0., 0.);
         self.dino.draw(&mut canvas)?;
         self.obstacle.draw(&mut canvas, &mut ctx.gfx)?;
 
@@ -225,6 +223,7 @@ impl EventHandler for MainState {
 
         /*
         // validado varias teclas a la vez
+
         if input.event.logical_key == Key::Named(NamedKey::ArrowRight) {
             //println!("KeyCode::Right");
             self.dino.speed.x = 100.0;

@@ -104,7 +104,7 @@ async fn main() {
     loop {
         let dt = get_frame_time();
 
-        clear_background(WHITE);
+        clear_background(WHITE); //BLACK
 
         dino.speed = vec2(0.0, 0.0);
         dino.draw();

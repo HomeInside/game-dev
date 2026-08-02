@@ -7,9 +7,6 @@ use macroquad::window;
 const WIDTH: i32 = 800;
 const HEIGHT: i32 = 600;
 
-#[allow(dead_code)]
-const PHYSICS_DT: f32 = 1.0 / 120.0; //60
-
 struct Dino {
     image: Texture2D,
     w: f32,
@@ -45,6 +42,7 @@ impl Dino {
     pub fn draw(&self) {
         draw_texture(&self.image, self.position.x, self.position.y, WHITE);
     }
+
     /// mantiene el dinosaurio dentro de la
     // ventana principal
     pub fn set_in_window(&mut self, dt: f32) {
@@ -106,7 +104,7 @@ async fn main() {
     loop {
         let dt = get_frame_time();
 
-        clear_background(WHITE); //BLACK
+        clear_background(WHITE);
 
         dino.speed = vec2(0.0, 0.0);
         dino.draw();

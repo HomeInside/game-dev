@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 ggez = { version = "~0.10.0", default-features = false, features = ["gamepad"] }
+winit = "0.30.13"
 
 [profile.dev]
 opt-level = 1

@@ -5,10 +5,9 @@ use ggez::conf;
 use ggez::event::{self, EventHandler};
 use ggez::graphics;
 use ggez::graphics::{Canvas, Color, DrawMode, DrawParam, GraphicsContext, Image, Mesh, Rect};
-use ggez::input::keyboard::{KeyCode, KeyInput};
+use ggez::input::keyboard::KeyInput;
 use ggez::{Context, GameResult, glam};
 use glam::Vec2;
-//use winit::keyboard::{Key, NamedKey};
 use winit::keyboard::{Key, NamedKey};
 
 const WIDTH: f32 = 800.0;
@@ -54,7 +53,7 @@ impl Dino {
     pub fn update(&mut self, dt: f32, screen_size: glam::Vec2) {
         self.position += self.speed * dt;
 
-        self.set_in_window(dt, screen_size.x, screen_size.y);
+        self.set_in_window(screen_size.x, screen_size.y);
     }
 
     fn draw(&self, canvas: &mut graphics::Canvas) -> GameResult {
@@ -66,7 +65,7 @@ impl Dino {
 
     /// mantiene el dinosaurio dentro de la
     // ventana principal
-    pub fn set_in_window(&mut self, dt: f32, x: f32, y: f32) {
+    pub fn set_in_window(&mut self, x: f32, y: f32) {
         let w = self.w;
         let h = self.h;
 
@@ -111,6 +110,40 @@ impl Obstacle {
     }
 }
 
+fn draw_fps(ctx: &mut Context, canvas: &mut graphics::Canvas) -> GameResult {
+    let fps_counter = ctx.time.fps();
+
+    let fps_text = format!("FPS: {:.0}", fps_counter);
+    let mut fps_text_layout = graphics::Text::new(fps_text);
+    fps_text_layout.set_scale(graphics::PxScale::from(22.0));
+
+    // score en la parte superior izquierda
+    let fps_text_position = Vec2::new(0.0, 1.0);
+    canvas.draw(
+        &fps_text_layout,
+        DrawParam::default()
+            .dest(fps_text_position)
+            .color(graphics::Color::BLACK),
+    );
+    Ok(())
+}
+
+fn draw_collide_info(canvas: &mut graphics::Canvas) -> GameResult {
+    let info_text = format!("objetos colisionando!");
+    let mut info_text_layout = graphics::Text::new(info_text);
+    info_text_layout.set_scale(graphics::PxScale::from(22.0));
+
+    // en la parte superior izquierda
+    let info_text_position = Vec2::new(0.0, 20.0);
+    canvas.draw(
+        &info_text_layout,
+        DrawParam::default()
+            .dest(info_text_position)
+            .color(graphics::Color::RED),
+    );
+    Ok(())
+}
+
 // el struct principal
 struct MainState {
     dino: Dino,
@@ -152,28 +185,47 @@ impl EventHandler for MainState {
         if is_colliding {
             self.dino.draw_hitbox(&mut canvas, &mut ctx.gfx);
             self.obstacle.draw_hitbox(&mut canvas, &mut ctx.gfx);
-            //draw_text(format!("objetos colisionando!").as_str(), 0., 40., 24., RED);
+            draw_collide_info(&mut canvas)?;
         }
+
+        draw_fps(ctx, &mut canvas)?;
 
         canvas.finish(ctx)
     }
 
-    fn key_down_event(&mut self, ctx: &mut Context, input: KeyInput, _repeat: bool) -> GameResult {
+    fn key_down_event(&mut self, _ctx: &mut Context, input: KeyInput, _repeat: bool) -> GameResult {
+        if input.event.logical_key == Key::Named(NamedKey::ArrowRight) {
+            //println!("KeyCode::Right");
+            self.dino.speed.x = 100.0;
+        }
+        if input.event.logical_key == Key::Named(NamedKey::ArrowLeft) {
+            //println!("KeyCode::Left");
+            self.dino.speed.x = -100.0;
+        }
+        if input.event.logical_key == Key::Named(NamedKey::ArrowUp) {
+            //println!("KeyCode::Up");
+            self.dino.speed.y = -100.0;
+        }
+        if input.event.logical_key == Key::Named(NamedKey::ArrowDown) {
+            //println!("KeyCode::Down");
+            self.dino.speed.y = 100.0;
+        }
+        /*
         match input.event.logical_key {
             Key::Named(NamedKey::ArrowRight) => {
-                println!("KeyCode::Right");
+                //println!("KeyCode::Right");
                 self.dino.speed.x = 100.0;
             }
             Key::Named(NamedKey::ArrowLeft) => {
-                println!("KeyCode::Left");
+                //println!("KeyCode::Left");
                 self.dino.speed.x = -100.0;
             }
             Key::Named(NamedKey::ArrowUp) => {
-                println!("KeyCode::Up");
+                //println!("KeyCode::Up");
                 self.dino.speed.y = -100.0;
             }
             Key::Named(NamedKey::ArrowDown) => {
-                println!("KeyCode::Down");
+                //println!("KeyCode::Down");
                 self.dino.speed.y = 100.0;
             }
             Key::Named(NamedKey::Escape) => {
@@ -182,12 +234,13 @@ impl EventHandler for MainState {
             }
             _ => {}
         }
+        */
         Ok(())
     }
 }
 
 fn main() -> GameResult {
-    let resource_dir = std::path::PathBuf::from("/home/helio/projects/rs-work/ggez-hitbox");
+    let resource_dir = std::path::PathBuf::from("./");
 
     let cb = ggez::ContextBuilder::new("HitBox", "Helio Studio Games")
         .window_setup(conf::WindowSetup::default().title("ggez :: HitBox"))
@@ -201,7 +254,6 @@ fn main() -> GameResult {
 
     let (mut ctx, event_loop) = cb.build()?;
 
-    //let state = MainState::new(&mut ctx);
     let state = MainState::new(&mut ctx)?;
 
     event::run(ctx, event_loop, state)

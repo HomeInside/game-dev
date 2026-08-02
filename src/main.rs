@@ -1,7 +1,7 @@
 use macroquad::color::{BLACK, WHITE};
 use macroquad::math::Rect;
 use macroquad::prelude::*;
-use macroquad::time::{draw_fps, get_frame_time};
+use macroquad::time::get_frame_time;
 use macroquad::window;
 
 const WIDTH: i32 = 800;
@@ -117,6 +117,7 @@ async fn main() {
         if is_colliding {
             dino.draw_hitbox();
             obstacle.draw_hitbox();
+            draw_text(format!("objetos colisionando!").as_str(), 0., 40., 24., RED);
         }
 
         if is_key_down(KeyCode::Right) {
@@ -144,7 +145,8 @@ async fn main() {
 
         dino.set_in_window(dt);
 
-        draw_fps();
+        //draw_fps();
+        draw_text(format!("FPS: {}", get_fps()).as_str(), 0., 16., 32., BLACK);
 
         window::next_frame().await;
     }

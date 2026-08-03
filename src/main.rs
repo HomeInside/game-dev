@@ -19,6 +19,7 @@ struct Player {
     speed: Vec2,
     hitbox: Rect,
     is_grounded: bool,
+    previous_position: Vec2,
 }
 
 impl Player {
@@ -42,6 +43,7 @@ impl Player {
             speed: vec2(0., 0.),
             hitbox: Rect::new(0.0, 0.0, w, h),
             is_grounded: true,
+            previous_position: vec2(0., initial_post),
         }
     }
 
@@ -96,11 +98,26 @@ impl Player {
         self.speed.y += GRAVITY * dt;
     }
 
+    // TODO
+    // mueve el eje X, del jugador
+    pub fn move_x(&mut self, dt: f32) {
+        self.position.x += self.speed.x * dt;
+        self.sync_hitbox();
+    }
+
+    // TODO
+    // mueve el eje Y, del jugador
+    pub fn move_y(&mut self, dt: f32) {
+        self.position.y += self.speed.y * dt;
+        self.sync_hitbox();
+    }
+
     /// mueve al jugador.
     pub fn update(&mut self, dt: f32) {
         self.position += self.speed * dt;
     }
 
+    /// DEPRECATED por move_x y move_y
     /// mueve al jugador.
     pub fn update_position(&mut self, dt: f32) {
         self.position += self.speed * dt;
@@ -137,12 +154,42 @@ impl Player {
         }
     }
 
+    /// DEPRECATED ver `resolve_platform_x`
     pub fn resolve_platform(&mut self, platform: Rect) {
         if self.hitbox.overlaps(&platform) {
             if self.speed.y > 0.0 {
                 self.position.y = platform.y - self.h;
                 self.speed.y = 0.0;
                 self.is_grounded = true;
+            }
+
+            self.sync_hitbox();
+        }
+    }
+
+    /// colisiones horizonatales.
+    pub fn resolve_platform_x(&mut self, platform: Rect) {
+        if self.hitbox.overlaps(&platform) {
+            if self.speed.x > 0.0 {
+                self.position.x = platform.x - self.w;
+            } else if self.speed.x < 0.0 {
+                self.position.x = platform.x + platform.w;
+            }
+
+            self.speed.x = 0.0;
+            self.sync_hitbox();
+        }
+    }
+    /// colisiones verticales.
+    pub fn resolve_platform_y(&mut self, platform: Rect) {
+        if self.hitbox.overlaps(&platform) {
+            if self.speed.y > 0.0 {
+                self.position.y = platform.y - self.h;
+                self.speed.y = 0.0;
+                self.is_grounded = true;
+            } else if self.speed.y < 0.0 {
+                self.position.y = platform.y + platform.h;
+                self.speed.y = 0.0;
             }
 
             self.sync_hitbox();
@@ -223,6 +270,16 @@ async fn main() {
         if is_key_down(KeyCode::Left) {
             direction -= 1.0;
         }
+        //debug keys
+        if is_key_down(KeyCode::A) {
+            player1.position.x = 0.0;
+            player1.position.y = 560.0;
+        }
+        //debug keys
+        if is_key_down(KeyCode::S) {
+            player1.position.x = 760.0;
+            player1.position.y = 560.0;
+        }
 
         if is_key_pressed(KeyCode::Space) {
             println!("grounded antes del salto: {}", player1.is_grounded);
@@ -235,14 +292,23 @@ async fn main() {
         player1.apply_gravity(dt);
 
         // 3. MOVEMENT
-        player1.update_position(dt);
+        // player1.update_position(dt);
+        player1.move_x(dt);
 
         // 4. COLLISIONS
-        player1.is_grounded = false;
         // TODO
         // valida si el jugador choca con una plataforma
         for platform in &platforms {
-            player1.resolve_platform(platform.get_rect());
+            //player1.resolve_platform(platform.get_rect());
+            player1.resolve_platform_x(platform.get_rect());
+        }
+
+        player1.move_y(dt);
+
+        player1.is_grounded = false;
+
+        for platform in &platforms {
+            player1.resolve_platform_y(platform.get_rect());
         }
 
         player1.resolve_floor();

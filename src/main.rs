@@ -6,6 +6,8 @@ use macroquad::window;
 
 const WIDTH: i32 = 800;
 const HEIGHT: i32 = 600;
+//Después lo ajustaremos.
+const GRAVITY: f32 = 600.0;
 
 struct Player {
     image: Texture2D,
@@ -57,6 +59,10 @@ impl Player {
         // mantener el hitbox sincronizado
         self.hitbox.x = self.position.x;
         self.hitbox.y = self.position.y;
+    }
+
+    pub fn apply_gravity(&mut self, dt: f32) {
+        self.speed.y += GRAVITY * dt;
     }
 }
 
@@ -154,6 +160,8 @@ async fn main() {
                 platform.draw_hitbox(platform.hit_color);
             }
         }
+
+        player1.apply_gravity(dt);
 
         player1.set_in_window(dt);
 

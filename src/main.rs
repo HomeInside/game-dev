@@ -6,8 +6,10 @@ use macroquad::window;
 
 const WIDTH: i32 = 800;
 const HEIGHT: i32 = 600;
-//Después lo ajustaremos.
+
+// Después lo ajustaremos.
 const GRAVITY: f32 = 600.0;
+const JUMP_SPEED: f32 = -350.0; //-350.0;
 
 struct Player {
     image: Texture2D,
@@ -121,6 +123,16 @@ impl Player {
 
         self.sync_hitbox();
     }
+
+    /// salto
+    pub fn jump(&mut self) {
+        println!("jump fn");
+        if self.is_grounded {
+            println!("player jump!");
+            self.speed.y = JUMP_SPEED;
+            self.is_grounded = false;
+        }
+    }
 }
 
 struct Obstacle {
@@ -187,7 +199,7 @@ async fn main() {
 
         clear_background(WHITE); //BLACK
 
-        player1.speed = vec2(0.0, 0.0);
+        //player1.speed = vec2(0.0, 0.0);
         player1.draw();
         for platform in &platforms {
             platform.draw();
@@ -206,9 +218,10 @@ async fn main() {
             player1.speed.y = 100.0;
         }
 
-        if is_key_down(KeyCode::Space) {
+        if is_key_pressed(KeyCode::Space) {
+            println!("============");
             println!("KeyCode::Space");
-            println!("jump!");
+            player1.jump();
         }
 
         for platform in &platforms {
@@ -230,6 +243,13 @@ async fn main() {
             format!("toca el suelo: {}", player1.is_grounded).as_str(),
             0.,
             35.,
+            24.,
+            BLACK,
+        );
+        draw_text(
+            format!("Player X: {:.1}, y: {:.1}", player1.position.x, player1.position.y).as_str(),
+            0.,
+            55.,
             24.,
             BLACK,
         );

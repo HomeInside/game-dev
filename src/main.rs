@@ -31,12 +31,14 @@ impl Player {
         // altura, asi que debe empezar "encima" del "piso/suelo"
         // sin embargo `resolve_floor` corrige la posición,
         // un bug corregido de forma inesperada :)
+        //screen_height() - player.h // 560
+        let initial_post = screen_height() - h;
 
         Self {
             image,
             w,
             h,
-            position: vec2(0., 500.), //560
+            position: vec2(0., initial_post),
             speed: vec2(0., 0.),
             hitbox: Rect::new(0.0, 0.0, w, h),
             is_grounded: true,

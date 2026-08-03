@@ -45,24 +45,43 @@ impl Player {
         draw_texture(&self.image, self.position.x, self.position.y, WHITE);
     }
 
+    /// DEPRECATED
     /// mantiene el player dentro de la
     // ventana principal
     pub fn set_in_window(&mut self, dt: f32) {
-        self.position += self.speed * dt;
+        //ahora es `update_position()`
+        //self.position += self.speed * dt;
 
         let w = self.w;
         let h = self.h;
 
+        //horizontal/paredes
         self.position.x = self.position.x.clamp(0.0, screen_width() - w);
-        self.position.y = self.position.y.clamp(0.0, screen_height() - h);
+        // vertical/suelo
+        //self.position.y = self.position.y.clamp(0.0, screen_height() - h);
 
+        //ahora es `update_position()`
         // mantener el hitbox sincronizado
-        self.hitbox.x = self.position.x;
-        self.hitbox.y = self.position.y;
+        //self.hitbox.x = self.position.x;
+        //self.hitbox.y = self.position.y;
     }
 
     pub fn apply_gravity(&mut self, dt: f32) {
         self.speed.y += GRAVITY * dt;
+    }
+
+    pub fn update(&mut self, dt: f32) {
+        // mueve el jugador
+        self.position += self.speed * dt;
+    }
+
+    pub fn update_position(&mut self, dt: f32) {
+        // mueve el jugador
+        self.position += self.speed * dt;
+
+        // mantener el hitbox sincronizado
+        self.hitbox.x = self.position.x;
+        self.hitbox.y = self.position.y;
     }
 }
 
@@ -162,8 +181,10 @@ async fn main() {
         }
 
         player1.apply_gravity(dt);
+        player1.update_position(dt);
 
         player1.set_in_window(dt);
+        //player1.update(dt);
 
         draw_text(format!("FPS: {}", get_fps()).as_str(), 0., 16., 32., BLACK);
 

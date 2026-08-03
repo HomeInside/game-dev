@@ -26,14 +26,17 @@ impl Player {
         let w = image.width();
         let h = image.height();
 
-        // el jugador empienza en la parte
-        // inferior izquieda, sobre el "piso/suelo"
+        // el jugador empieza en la parte inferior izquierda
+        // sobre el "piso/suelo", recuerda que el jugador tiene
+        // altura, asi que debe empezar "encima" del "piso/suelo"
+        // sin embargo `resolve_floor` corrige la posición,
+        // un bug corregido de forma inesperada :)
 
         Self {
             image,
             w,
             h,
-            position: vec2(0., 600.),
+            position: vec2(0., 500.), //560
             speed: vec2(0., 0.),
             hitbox: Rect::new(0.0, 0.0, w, h),
             is_grounded: true,
@@ -113,8 +116,6 @@ impl Player {
     pub fn resolve_floor(&mut self) {
         let floor_y = screen_height();
 
-        self.is_grounded = false;
-
         if self.position.y + self.h >= floor_y {
             self.position.y = floor_y - self.h;
             self.speed.y = 0.0;
@@ -131,6 +132,18 @@ impl Player {
             println!("player jump!");
             self.speed.y = JUMP_SPEED;
             self.is_grounded = false;
+        }
+    }
+
+    pub fn resolve_platform(&mut self, platform: Rect) {
+        if self.hitbox.overlaps(&platform) {
+            if self.speed.y > 0.0 {
+                self.position.y = platform.y - self.h;
+                self.speed.y = 0.0;
+                self.is_grounded = true;
+            }
+
+            self.sync_hitbox();
         }
     }
 }
@@ -198,29 +211,19 @@ async fn main() {
         let dt = get_frame_time();
 
         clear_background(WHITE); //BLACK
+
         // 1. INPUT
         let mut direction = 0.0;
 
         if is_key_down(KeyCode::Right) {
-            //player1.speed.x = 100.0;
             direction += 1.0;
         }
         if is_key_down(KeyCode::Left) {
-            //player1.speed.x = -100.0;
             direction -= 1.0;
         }
-        /*
-        if is_key_down(KeyCode::Up) {
-            player1.speed.y = -100.0;
-        }
-        if is_key_down(KeyCode::Down) {
-            player1.speed.y = 100.0;
-        }
-        */
 
         if is_key_pressed(KeyCode::Space) {
-            println!("============");
-            println!("KeyCode::Space");
+            println!("grounded antes del salto: {}", player1.is_grounded);
             player1.jump();
         }
 
@@ -228,19 +231,28 @@ async fn main() {
 
         // 2. PHYSICS
         player1.apply_gravity(dt);
+
         // 3. MOVEMENT
         player1.update_position(dt);
-        player1.resolve_floor();
 
         // 4. COLLISIONS
-        player1.set_in_window(dt);
-
+        player1.is_grounded = false;
+        // TODO
+        // valida si el jugador choca con una plataforma
         for platform in &platforms {
+            player1.resolve_platform(platform.get_rect());
+        }
+
+        player1.resolve_floor();
+
+        player1.set_in_window(dt);
+        // TO FIX donde va esta parte luego
+        /*for platform in &platforms {
             if player1.get_rect().overlaps(&platform.get_rect()) {
                 player1.draw_hitbox();
                 platform.draw_hitbox(platform.hit_color);
             }
-        }
+        }*/
 
         //5. DRAW
         player1.draw();

@@ -36,6 +36,12 @@ impl Player {
         self.hitbox
     }
 
+    /// mantener el hitbox sincronizado
+    pub fn sync_hitbox(&mut self) {
+        self.hitbox.x = self.position.x;
+        self.hitbox.y = self.position.y;
+    }
+
     pub fn draw_hitbox(&self) {
         let hb = self.get_rect();
         draw_rectangle_lines(hb.x, hb.y, hb.w, hb.h, 4.0, RED);
@@ -48,12 +54,14 @@ impl Player {
     /// DEPRECATED
     /// mantiene el player dentro de la
     // ventana principal
-    pub fn set_in_window(&mut self, dt: f32) {
+    pub fn set_in_window(&mut self, _dt: f32) {
         //ahora es `update_position()`
         //self.position += self.speed * dt;
 
+        //horizontal/paredes
         let w = self.w;
-        let h = self.h;
+        // vertical/suelo
+        //let h = self.h;
 
         //horizontal/paredes
         self.position.x = self.position.x.clamp(0.0, screen_width() - w);
@@ -80,8 +88,25 @@ impl Player {
         self.position += self.speed * dt;
 
         // mantener el hitbox sincronizado
-        self.hitbox.x = self.position.x;
-        self.hitbox.y = self.position.y;
+        //self.hitbox.x = self.position.x;
+        //self.hitbox.y = self.position.y;
+        self.sync_hitbox();
+    }
+
+    /// el piso será `screen_height()`, una línea
+    /// horizontal invisible, que delimita la
+    /// ventana del juego.
+    /// valida que el jugador no caiga/salga más
+    /// allá del piso.
+    pub fn resolve_floor(&mut self) {
+        let floor_y = screen_height();
+
+        if self.position.y + self.h >= floor_y {
+            self.position.y = floor_y - self.h;
+            self.speed.y = 0.0;
+        }
+
+        self.sync_hitbox();
     }
 }
 
@@ -182,6 +207,7 @@ async fn main() {
 
         player1.apply_gravity(dt);
         player1.update_position(dt);
+        player1.resolve_floor();
 
         player1.set_in_window(dt);
         //player1.update(dt);

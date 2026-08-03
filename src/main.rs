@@ -198,31 +198,42 @@ async fn main() {
         let dt = get_frame_time();
 
         clear_background(WHITE); //BLACK
-
-        //player1.speed = vec2(0.0, 0.0);
-        player1.draw();
-        for platform in &platforms {
-            platform.draw();
-        }
+        // 1. INPUT
+        let mut direction = 0.0;
 
         if is_key_down(KeyCode::Right) {
-            player1.speed.x = 100.0;
+            //player1.speed.x = 100.0;
+            direction += 1.0;
         }
         if is_key_down(KeyCode::Left) {
-            player1.speed.x = -100.0;
+            //player1.speed.x = -100.0;
+            direction -= 1.0;
         }
+        /*
         if is_key_down(KeyCode::Up) {
             player1.speed.y = -100.0;
         }
         if is_key_down(KeyCode::Down) {
             player1.speed.y = 100.0;
         }
+        */
 
         if is_key_pressed(KeyCode::Space) {
             println!("============");
             println!("KeyCode::Space");
             player1.jump();
         }
+
+        player1.speed.x = direction * 100.0;
+
+        // 2. PHYSICS
+        player1.apply_gravity(dt);
+        // 3. MOVEMENT
+        player1.update_position(dt);
+        player1.resolve_floor();
+
+        // 4. COLLISIONS
+        player1.set_in_window(dt);
 
         for platform in &platforms {
             if player1.get_rect().overlaps(&platform.get_rect()) {
@@ -231,12 +242,11 @@ async fn main() {
             }
         }
 
-        player1.apply_gravity(dt);
-        player1.update_position(dt);
-        player1.resolve_floor();
-
-        player1.set_in_window(dt);
-        //player1.update(dt);
+        //5. DRAW
+        player1.draw();
+        for platform in &platforms {
+            platform.draw();
+        }
 
         draw_text(format!("FPS: {}", get_fps()).as_str(), 0., 16., 24., BLACK);
         draw_text(

@@ -16,12 +16,17 @@ struct Player {
     position: Vec2,
     speed: Vec2,
     hitbox: Rect,
+    is_grounded: bool,
 }
 
 impl Player {
     pub fn new(image: Texture2D) -> Self {
         let w = image.width();
         let h = image.height();
+
+        // el jugador empienza en la parte
+        // inferior izquieda, sobre el "piso/suelo"
+
         Self {
             image,
             w,
@@ -29,9 +34,11 @@ impl Player {
             position: vec2(0., 600.),
             speed: vec2(0., 0.),
             hitbox: Rect::new(0.0, 0.0, w, h),
+            is_grounded: true,
         }
     }
 
+    /// obtener el hitbox
     pub fn get_rect(&self) -> Rect {
         self.hitbox
     }
@@ -42,11 +49,14 @@ impl Player {
         self.hitbox.y = self.position.y;
     }
 
+    /// dibuja el hitbox, el rect que
+    /// delimita el tamaño del jugador.
     pub fn draw_hitbox(&self) {
         let hb = self.get_rect();
         draw_rectangle_lines(hb.x, hb.y, hb.w, hb.h, 4.0, RED);
     }
 
+    /// dibuja al jugador
     pub fn draw(&self) {
         draw_texture(&self.image, self.position.x, self.position.y, WHITE);
     }
@@ -74,22 +84,21 @@ impl Player {
         //self.hitbox.y = self.position.y;
     }
 
+    /// modifica la velocidad aplicando gravedad.
     pub fn apply_gravity(&mut self, dt: f32) {
         self.speed.y += GRAVITY * dt;
     }
 
+    /// mueve al jugador.
     pub fn update(&mut self, dt: f32) {
-        // mueve el jugador
         self.position += self.speed * dt;
     }
 
+    /// mueve al jugador.
     pub fn update_position(&mut self, dt: f32) {
-        // mueve el jugador
         self.position += self.speed * dt;
 
         // mantener el hitbox sincronizado
-        //self.hitbox.x = self.position.x;
-        //self.hitbox.y = self.position.y;
         self.sync_hitbox();
     }
 
@@ -97,13 +106,17 @@ impl Player {
     /// horizontal invisible, que delimita la
     /// ventana del juego.
     /// valida que el jugador no caiga/salga más
-    /// allá del piso.
+    /// allá del piso, corrigiendo la posición y
+    /// velocidad en caso de que lo haga.
     pub fn resolve_floor(&mut self) {
         let floor_y = screen_height();
+
+        self.is_grounded = false;
 
         if self.position.y + self.h >= floor_y {
             self.position.y = floor_y - self.h;
             self.speed.y = 0.0;
+            self.is_grounded = true;
         }
 
         self.sync_hitbox();
@@ -212,7 +225,14 @@ async fn main() {
         player1.set_in_window(dt);
         //player1.update(dt);
 
-        draw_text(format!("FPS: {}", get_fps()).as_str(), 0., 16., 32., BLACK);
+        draw_text(format!("FPS: {}", get_fps()).as_str(), 0., 16., 24., BLACK);
+        draw_text(
+            format!("toca el suelo: {}", player1.is_grounded).as_str(),
+            0.,
+            35.,
+            24.,
+            BLACK,
+        );
 
         window::next_frame().await;
     }

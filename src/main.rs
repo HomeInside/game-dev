@@ -169,31 +169,48 @@ impl Player {
 
     /// colisiones horizonatales.
     pub fn resolve_platform_x(&mut self, platform: Rect) {
-        if self.hitbox.overlaps(&platform) {
-            if self.speed.x > 0.0 {
-                self.position.x = platform.x - self.w;
-            } else if self.speed.x < 0.0 {
-                self.position.x = platform.x + platform.w;
-            }
-
-            self.speed.x = 0.0;
-            self.sync_hitbox();
+        if !self.hitbox.overlaps(&platform) {
+            return;
         }
+
+        // Venía desde la izquierda
+        if self.speed.x > 0.0 && self.previous_position.x + self.w <= platform.x {
+            self.position.x = platform.x - self.w;
+            self.speed.x = 0.0;
+        }
+        // Venía desde la derecha
+        else if self.speed.x < 0.0 && self.previous_position.x >= platform.x + platform.w {
+            self.position.x = platform.x + platform.w;
+            self.speed.x = 0.0;
+        }
+
+        self.sync_hitbox();
     }
+
     /// colisiones verticales.
     pub fn resolve_platform_y(&mut self, platform: Rect) {
-        if self.hitbox.overlaps(&platform) {
-            if self.speed.y > 0.0 {
-                self.position.y = platform.y - self.h;
-                self.speed.y = 0.0;
-                self.is_grounded = true;
-            } else if self.speed.y < 0.0 {
-                self.position.y = platform.y + platform.h;
-                self.speed.y = 0.0;
-            }
-
-            self.sync_hitbox();
+        if !self.hitbox.overlaps(&platform) {
+            return;
         }
+
+        // Cayendo: aterrizar encima
+        if self.speed.y > 0.0 && self.previous_position.y + self.h <= platform.y {
+            self.position.y = platform.y - self.h;
+            self.speed.y = 0.0;
+            self.is_grounded = true;
+        }
+        // Subiendo: golpear techo
+        else if self.speed.y < 0.0 && self.previous_position.y >= platform.y + platform.h {
+            self.position.y = platform.y + platform.h;
+            self.speed.y = 0.0;
+        }
+
+        self.sync_hitbox();
+    }
+
+    /// guardar posicion anterior
+    pub fn save_previous_position(&mut self) {
+        self.previous_position = self.position;
     }
 }
 
@@ -216,8 +233,8 @@ impl Obstacle {
         self.rect
     }
 
-    pub fn draw_hitbox(&self, color: Color) {
-        draw_rectangle_lines(self.rect.x, self.rect.y, self.rect.w, self.rect.h, 4.0, color);
+    pub fn draw_hitbox(&self) {
+        draw_rectangle_lines(self.rect.x, self.rect.y, self.rect.w, self.rect.h, 4.0, self.hit_color);
     }
 
     pub fn draw(&self) {
@@ -270,15 +287,19 @@ async fn main() {
         if is_key_down(KeyCode::Left) {
             direction -= 1.0;
         }
+
         //debug keys
         if is_key_down(KeyCode::A) {
             player1.position.x = 0.0;
             player1.position.y = 560.0;
+            player1.sync_hitbox();
         }
+
         //debug keys
         if is_key_down(KeyCode::S) {
             player1.position.x = 760.0;
             player1.position.y = 560.0;
+            player1.sync_hitbox();
         }
 
         if is_key_pressed(KeyCode::Space) {
@@ -291,15 +312,16 @@ async fn main() {
         // 2. PHYSICS
         player1.apply_gravity(dt);
 
+        // guardar la posición actual
+        player1.save_previous_position();
+
         // 3. MOVEMENT
         // player1.update_position(dt);
         player1.move_x(dt);
 
         // 4. COLLISIONS
-        // TODO
         // valida si el jugador choca con una plataforma
         for platform in &platforms {
-            //player1.resolve_platform(platform.get_rect());
             player1.resolve_platform_x(platform.get_rect());
         }
 
@@ -314,18 +336,15 @@ async fn main() {
         player1.resolve_floor();
 
         player1.set_in_window(dt);
-        // TO FIX donde va esta parte luego
-        /*for platform in &platforms {
-            if player1.get_rect().overlaps(&platform.get_rect()) {
-                player1.draw_hitbox();
-                platform.draw_hitbox(platform.hit_color);
-            }
-        }*/
 
         //5. DRAW
         player1.draw();
         for platform in &platforms {
             platform.draw();
+            if player1.get_rect().overlaps(&platform.get_rect()) {
+                player1.draw_hitbox();
+                platform.draw_hitbox();
+            }
         }
 
         draw_text(format!("FPS: {}", get_fps()).as_str(), 0., 16., 24., BLACK);

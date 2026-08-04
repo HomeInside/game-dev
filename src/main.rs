@@ -41,8 +41,7 @@ impl Player {
             image,
             w,
             h,
-            //position: vec2(0., initial_post),
-            position: vec2(338., 310.),
+            position: vec2(0., initial_post),
             speed: vec2(0., 0.),
             hitbox: Rect::new(0.0, 0.0, w, h),
             is_grounded: true,
@@ -359,9 +358,15 @@ async fn main() {
         }
 
         //debug keys
-        if is_key_down(KeyCode::S) {
+        if is_key_down(KeyCode::D) {
             player1.position.x = 760.0;
             player1.position.y = 560.0;
+            player1.sync_hitbox();
+        }
+        //debug keys
+        if is_key_down(KeyCode::W) {
+            player1.position.x = 338.0;
+            player1.position.y = 380.0;
             player1.sync_hitbox();
         }
 

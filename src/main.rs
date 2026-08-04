@@ -7,8 +7,10 @@ use macroquad::window;
 const WIDTH: i32 = 800;
 const HEIGHT: i32 = 600;
 
-// Después lo ajustaremos.
+// después lo ajustaremos.
 const GRAVITY: f32 = 600.0;
+
+// velocidad inicial del salto
 const JUMP_SPEED: f32 = -350.0; //-350.0;
 
 struct Player {
@@ -251,8 +253,15 @@ fn window_conf() -> window::Conf {
     }
 }
 
+/// altura máxima del salto
+fn get_max_jump() -> f32 {
+    let h = (JUMP_SPEED * JUMP_SPEED) / (2.0 * GRAVITY);
+    return h;
+}
+
 #[macroquad::main(window_conf)]
 async fn main() {
+    // pixeles: 40x40
     let player1: Texture2D = load_texture("./male_hero-design.png").await.unwrap();
     player1.set_filter(FilterMode::Nearest);
     let mut player1 = Player::new(player1);
@@ -316,11 +325,11 @@ async fn main() {
         player1.save_previous_position();
 
         // 3. MOVEMENT
-        // player1.update_position(dt);
         player1.move_x(dt);
 
         // 4. COLLISIONS
         // valida si el jugador choca con una plataforma
+        // en eje X
         for platform in &platforms {
             player1.resolve_platform_x(platform.get_rect());
         }
@@ -329,6 +338,8 @@ async fn main() {
 
         player1.is_grounded = false;
 
+        // valida si el jugador choca con una plataforma
+        // en eje Y
         for platform in &platforms {
             player1.resolve_platform_y(platform.get_rect());
         }

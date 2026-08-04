@@ -1,0 +1,17 @@
+[package]
+name = "macro-sprite"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+macroquad = "~0.4.16"
+
+[profile.dev]
+opt-level = 1
+
+[profile.release]
+lto = true
+opt-level = 2
+strip = true
+debug = false
+panic = "abort"

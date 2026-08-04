@@ -41,7 +41,8 @@ impl Player {
             image,
             w,
             h,
-            position: vec2(0., initial_post),
+            //position: vec2(0., initial_post),
+            position: vec2(338., 310.),
             speed: vec2(0., 0.),
             hitbox: Rect::new(0.0, 0.0, w, h),
             is_grounded: true,
@@ -244,6 +245,51 @@ impl Obstacle {
     }
 }
 
+// plataformas/obstaculos moviles
+struct MovingPlatform {
+    rect: Rect,
+    color: Color,
+    hit_color: Color,
+    start_x: f32,
+    end_x: f32,
+    speed: f32,
+    direction: f32,
+}
+
+impl MovingPlatform {
+    pub fn new(rect: Rect, color: Color, hit_color: Color, end_x: f32, speed: f32) -> Self {
+        Self {
+            rect,
+            color,
+            hit_color,
+            start_x: rect.x,
+            end_x,
+            speed,
+            direction: 1.0,
+        }
+    }
+
+    pub fn get_rect(&self) -> Rect {
+        self.rect
+    }
+
+    pub fn draw_hitbox(&self) {
+        draw_rectangle_lines(self.rect.x, self.rect.y, self.rect.w, self.rect.h, 4.0, self.hit_color);
+    }
+
+    pub fn draw(&self) {
+        draw_rectangle(self.rect.x, self.rect.y, self.rect.w, self.rect.h, self.color);
+    }
+
+    pub fn update(&mut self, dt: f32) {
+        self.rect.x += self.direction * self.speed * dt;
+
+        if self.rect.x >= self.end_x || self.rect.x <= self.start_x {
+            self.direction *= -1.0;
+        }
+    }
+}
+
 fn window_conf() -> window::Conf {
     window::Conf {
         window_title: "macroquad :: HitBox".to_owned(),
@@ -277,10 +323,18 @@ async fn main() {
     let rect3 = Rect::new(150.0, 550.0, 300.0, 30.0);
     let obst3 = Obstacle::new(rect3, BLUE, RED);
 
+    // crear las plataformas
     let mut platforms: Vec<Obstacle> = Vec::with_capacity(3);
     platforms.push(obst1);
     platforms.push(obst2);
     platforms.push(obst3);
+
+    // crear las plataformas móviles
+    let rect_mov1 = Rect::new(200.0, 330.0, 200.0, 30.0);
+    let mut obst_mov1 = MovingPlatform::new(rect_mov1, PURPLE, RED, 500.0, 80.0);
+
+    let mut moving_platforms: Vec<MovingPlatform> = Vec::with_capacity(1);
+    moving_platforms.push(obst_mov1);
 
     loop {
         let dt = get_frame_time();
@@ -334,6 +388,12 @@ async fn main() {
             player1.resolve_platform_x(platform.get_rect());
         }
 
+        // valida si el jugador choca con una plataforma móvil
+        // en eje X
+        for platform in &moving_platforms {
+            player1.resolve_platform_x(platform.get_rect());
+        }
+
         player1.move_y(dt);
 
         player1.is_grounded = false;
@@ -344,13 +404,47 @@ async fn main() {
             player1.resolve_platform_y(platform.get_rect());
         }
 
+        // valida si el jugador choca con una plataforma móvil
+        // en eje Y
+        for platform in &moving_platforms {
+            player1.resolve_platform_y(platform.get_rect());
+        }
+
+        // plataformas móviles
+        // actualizar y mover jugador
+        for platform in &mut moving_platforms {
+            // Guardar posición antes de mover
+            let old_x = platform.rect.x;
+
+            // Mover la plataforma
+            platform.update(dt);
+
+            // Si el jugador está en el suelo y encima, moverlo con la plataforma
+            if player1.is_grounded && player1.get_rect().overlaps(&platform.get_rect()) {
+                let delta_x = platform.rect.x - old_x;
+                player1.position.x += delta_x;
+                player1.sync_hitbox();
+            }
+        }
+
         player1.resolve_floor();
 
         player1.set_in_window(dt);
 
         //5. DRAW
         player1.draw();
+
+        // plataformas
         for platform in &platforms {
+            platform.draw();
+            if player1.get_rect().overlaps(&platform.get_rect()) {
+                player1.draw_hitbox();
+                platform.draw_hitbox();
+            }
+        }
+
+        // plataformas móviles
+        for platform in &mut moving_platforms {
             platform.draw();
             if player1.get_rect().overlaps(&platform.get_rect()) {
                 player1.draw_hitbox();

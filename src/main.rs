@@ -43,12 +43,12 @@ async fn main() {
         let mut speed = 0.0;
 
         if is_key_down(KeyCode::Right) {
-            speed = 200.0;
+            speed = 60.0;
             facing_right = true;
         }
 
         if is_key_down(KeyCode::Left) {
-            speed = -200.0;
+            speed = -60.0;
             facing_right = false;
         }
 
@@ -71,20 +71,21 @@ async fn main() {
         // segun si camina o corre.
         // Si me muevo, corro ó camino.
         // Si NO me muevo, hago `idle` (resposo/quieto)
-        let (texture, frame_speed) = if is_key_down(KeyCode::Right) || is_key_down(KeyCode::Left) {
+        let (texture, frame_speed, speed) = if is_key_down(KeyCode::Right) || is_key_down(KeyCode::Left) {
             // Si estamos moviendo el jugador, decidimos entre correr ó caminar
             if is_key_down(KeyCode::LeftShift) {
+                let n_speed = if facing_right { speed + 160.0 } else { speed - 160.0 };
                 // "corre"
-                (&texture_run, 0.08)
+                (&texture_run, 0.08, n_speed)
             } else {
                 // "camina"
-                (&texture_walk, 0.12)
+                (&texture_walk, 0.10, speed)
             }
         } else {
             // estamos en resposo
             // se define una velocidad tranquila para
             // que el jugador "respire"
-            (&texture_idle, 0.20)
+            (&texture_idle, 0.20, speed)
         };
 
         position.x += speed * dt;

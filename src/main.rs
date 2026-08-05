@@ -14,12 +14,16 @@ use macroquad::window::{clear_background, next_frame};
 #[macroquad::main("Animation Test")]
 async fn main() {
     // 1. cargar la textura(el Sprite Sheet)
-    let texture: Texture2D = load_texture("assets/male_hero-run.png").await.unwrap();
+    // para este ejemplo todos los Sprite Sheet
+    // tienen el mismo tamaño y la misma cantidad de frames
+    let texture_walk: Texture2D = load_texture("assets/male_hero-walk.png").await.unwrap();
+    let texture_run: Texture2D = load_texture("assets/male_hero-run.png").await.unwrap();
+
+    let frame_width = texture_walk.width();
 
     // 2. calcular datos básicos
     let sprite_size = 128.0; // todos miden 128x128, falta revisar
-    let total_frames = (texture.width() / sprite_size) as usize; // 1280 / 128 = 10
-    let frame_speed = 0.1; // cambia el cuadro ó frame cada 0.1 segundos
+    let total_frames = (frame_width / sprite_size) as usize; // 1280 / 128 = 10
 
     let mut current_frame = 0;
     let mut timer = 0.0;
@@ -41,6 +45,17 @@ async fn main() {
             speed = -200.0;
             facing_right = false;
         }
+
+        // Elegir textura y velocidad según el estado
+        // aqui se valida si se presiona la tecla Shift,
+        // para que el jugador "corra" y 'frame_speed' cambia
+        // el frame cada X segundos, segun si camina o corre
+        let (texture, frame_speed) = if is_key_down(KeyCode::LeftShift) {
+            (&texture_run, 0.08)
+        } else {
+            // Si no, "camina"
+            (&texture_walk, 0.12)
+        };
 
         position.x += speed * dt;
 

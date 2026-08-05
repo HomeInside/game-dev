@@ -53,13 +53,16 @@ async fn main() {
 
     // física y manejo de gravedad
     let mut vel_y = 0.0;
-    let mut is_grounded = true;
+
+    // dependerá de si el jugador empieza en
+    // el piso ó en el "aire"
+    let mut is_grounded = false;
 
     loop {
         clear_background(WHITE);
         let dt = get_frame_time();
 
-        // 3. Manejo de Input
+        // Manejo de Input
         let mut speed = 0.0;
 
         if is_key_down(KeyCode::Right) {
@@ -72,12 +75,16 @@ async fn main() {
             facing_right = false;
         }
 
-        //TODO Detectar el salto
         if is_key_pressed(KeyCode::Space) && is_grounded {
             vel_y = JUMP_SPEED;
             is_grounded = false;
-            current_frame = 0; // Reiniciamos la animación de salto para que empiece por el principio
-            timer = 0.0;
+            // reiniciamos la animación de salto
+            // para que empiece por el principio
+            // si estaba en el suelo
+            if is_grounded {
+                current_frame = 0;
+                timer = 0.0;
+            }
         }
 
         let is_moving = is_key_down(KeyCode::Right) || is_key_down(KeyCode::Left);
@@ -92,38 +99,21 @@ async fn main() {
         // próximo fotograma
         was_moving = is_moving;
 
-        // Elegir textura y velocidad según el estado.
+        // Elegir textura, velocidad de animación y de movimiento
+        // según el estado.
         // aqui se valida si se presiona la tecla Shift,
         // para que el jugador "corra".
         // 'frame_speed' cambia el frame cada X segundos,
-        // segun si camina o corre.
+        // según si camina o corre.
         // Si me muevo, corro ó camino.
         // Si NO me muevo, hago `idle` (resposo/quieto)
-        /*
-        let (texture, frame_speed, speed) = if is_key_down(KeyCode::Right) || is_key_down(KeyCode::Left) {
-            // Si estamos moviendo el jugador, decidimos entre correr ó caminar
-            if is_key_down(KeyCode::LeftShift) {
-                let n_speed = if facing_right { speed + 160.0 } else { speed - 160.0 };
-                // "corre"
-                (&texture_run, 0.08, n_speed)
-            } else {
-                // "camina"
-                (&texture_walk, 0.10, speed)
-            }
-        } else {
-            // estamos en resposo
-            // se define una velocidad tranquila para
-            // que el jugador "respire"
-            (&texture_idle, 0.20, speed)
-        };
-        */
-        // TODO start
-        // Elegir textura, velocidad de animación y velocidad de movimiento
         let (texture, frame_speed, speed) = if !is_grounded {
-            // ESTAMOS EN EL AIRE
-            if vel_y < 0.0 {
+            // estamos en el aire (cayendo?...)
+            //if vel_y < 0.0 {
+            if vel_y <= 0.0 {
                 // Subiendo (Salto)
-                // Usamos la animación de salto. La ponemos rápida (0.06) y SIN bucle (se congelará al final)
+                // Usamos la animación de salto. La ponemos rápida (0.06)
+                // y SIN bucle (se congelará al final)
                 (&texture_jump, 0.06, speed)
             } else {
                 // Bajando (Caída)
@@ -131,56 +121,64 @@ async fn main() {
                 (&texture_fall, 0.10, speed)
             }
         } else {
-            // ESTAMOS EN EL SUELO
+            // estamos en el suelo
+            // Si estamos moviendo el jugador, decidimos entre correr ó caminar
             if is_key_down(KeyCode::Right) || is_key_down(KeyCode::Left) {
-                // Movimiento horizontal
                 if is_key_down(KeyCode::LeftShift) {
                     let n_speed = if facing_right { speed + 160.0 } else { speed - 160.0 };
+                    // "corre"
                     (&texture_run, 0.08, n_speed)
                 } else {
+                    // "camina"
                     (&texture_walk, 0.10, speed)
                 }
             } else {
-                // Reposo
+                // estamos en resposo
+                // se define una velocidad tranquila para
+                // que el jugador "respire"
                 (&texture_idle, 0.20, speed)
             }
         };
-        // TODO end
 
-        // TODO
-        // s1. Aplicar gravedad al eje Y
+        // aplicar gravedad al eje Y
         vel_y += GRAVITY * dt;
 
-        // s2. Mover en Y
+        // mover en Y
         position.y += vel_y * dt;
         //
         position.x += speed * dt;
 
-        // TODO
-        // s3. Detectar el suelo (parte inferior de la ventana)
+        // detectar el suelo (parte inferior de la ventana)
+        // BUG aquí aún no es, el borde inferior de la ventana
         if position.y + sprite_size >= screen_height() {
-            position.y = screen_height() - sprite_size; // 128 // Ajustamos al borde exacto
-            //position.y = screen_height() - 100.0; // Ajustamos al borde exacto
+            position.y = screen_height() - sprite_size; //ajustamos al borde (exacto?)
             vel_y = 0.0;
             is_grounded = true;
         }
 
-        // 4. Lógica de la animación (cambiar el frame)
+        // lógica de la animación durante el salto (cambiar el frame)
+        //TO FIX
         timer += dt;
         if timer >= frame_speed {
             timer = 0.0;
             current_frame += 1;
-            if current_frame >= total_frames {
-                current_frame = 0; // Loop infinito
+
+            // Calcula el total de frames de la textura que se está dibujando AHORA
+            let max_frames = (texture.width() / sprite_size) as usize;
+
+            if current_frame >= max_frames {
+                current_frame = 0;
+                // ó si quieres congelarlo
+                //current_frame = max_frames - 1;
             }
         }
 
-        // 5. Cálculo del área de recorte de la textura
+        // cálculo del área de recorte de la textura
         // aqui se obtiene el frame del Sprite Sheet
         let source_x = current_frame as f32 * sprite_size;
         let source_rect = Rect::new(source_x, 0.0, sprite_size, texture.height());
 
-        // 6. Dibujar la textura recortada (el frame, usando DrawTextureParams)
+        // dibujar la textura recortada (el frame, usando DrawTextureParams)
         draw_texture_ex(
             texture,
             position.x,
@@ -193,6 +191,7 @@ async fn main() {
             },
         );
 
+        // debug info
         draw_text("Usa FLECHA IZQUIERDA y DERECHA para moverte", 0.0, 20.0, 25.0, BLACK);
         draw_text(&format!("Frame actual: {}", current_frame), 0.0, 35.0, 25.0, BLACK);
         draw_text(format!("toca el suelo: {}", is_grounded).as_str(), 0., 50., 24., BLACK);

@@ -31,8 +31,12 @@ async fn main() {
     let mut position = vec2(300.0, 250.0);
     let mut facing_right = true; // si el jugador mira a la derecha o izda
 
+    // guardamos el estado anterior para saber
+    // si se ha movido
+    let mut was_moving = false;
+
     loop {
-        clear_background(BLACK);
+        clear_background(WHITE);
         let dt = get_frame_time();
 
         // 3. Manejo de Input
@@ -47,6 +51,18 @@ async fn main() {
             speed = -200.0;
             facing_right = false;
         }
+
+        let is_moving = is_key_down(KeyCode::Right) || is_key_down(KeyCode::Left);
+
+        // Si el estado cambió reiniciamos el frame a 0
+        if was_moving != is_moving {
+            current_frame = 0;
+            timer = 0.0;
+        }
+
+        // actualizamos el estado para el
+        // próximo fotograma
+        was_moving = is_moving;
 
         // Elegir textura y velocidad según el estado.
         // aqui se valida si se presiona la tecla Shift,
@@ -101,8 +117,8 @@ async fn main() {
             },
         );
 
-        draw_text("Usa FLECHA IZQUIERDA y DERECHA para moverte", 0.0, 20.0, 25.0, WHITE);
-        draw_text(&format!("Frame actual: {}", current_frame), 0.0, 50.0, 25.0, WHITE);
+        draw_text("Usa FLECHA IZQUIERDA y DERECHA para moverte", 0.0, 20.0, 25.0, BLACK);
+        draw_text(&format!("Frame actual: {}", current_frame), 0.0, 50.0, 25.0, BLACK);
 
         next_frame().await;
     }

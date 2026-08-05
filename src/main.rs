@@ -107,18 +107,19 @@ async fn main() {
         // según si camina o corre.
         // Si me muevo, corro ó camino.
         // Si NO me muevo, hago `idle` (resposo/quieto)
+        //
+        // estamos en el aire (cayendo?...)
         let (texture, frame_speed, speed) = if !is_grounded {
-            // estamos en el aire (cayendo?...)
-            //if vel_y < 0.0 {
+            // Si estoy en el aire y mi velocidad es 0 (el ápice)
             if vel_y <= 0.0 {
-                // Subiendo (Salto)
-                // Usamos la animación de salto. La ponemos rápida (0.06)
-                // y SIN bucle (se congelará al final)
-                (&texture_jump, 0.06, speed)
+                // o negativa (subiendo?), usamos la animación de salto.
+                // La ponemos rápida (frame_speed alto)
+                (&texture_jump, 0.07, speed)
             } else {
-                // Bajando (Caída)
-                // Usamos la animación de caída. (0.10 para que se vea natural)
-                (&texture_fall, 0.10, speed)
+                // bajando (caída?)
+                // Usamos la animación de caída.
+                // La ponemos un poco más lenta (frame_speed bajo)
+                (&texture_fall, 0.12, speed)
             }
         } else {
             // estamos en el suelo
@@ -127,15 +128,15 @@ async fn main() {
                 if is_key_down(KeyCode::LeftShift) {
                     let n_speed = if facing_right { speed + 160.0 } else { speed - 160.0 };
                     // "corre"
-                    (&texture_run, 0.08, n_speed)
+                    (&texture_run, 0.04, n_speed)
                 } else {
                     // "camina"
-                    (&texture_walk, 0.10, speed)
+                    (&texture_walk, 0.09, speed)
                 }
             } else {
                 // estamos en resposo
-                // se define una velocidad tranquila para
-                // que el jugador "respire"
+                // se define una velocidad tranquila(más alta)
+                // para que el jugador "respire"
                 (&texture_idle, 0.20, speed)
             }
         };
@@ -154,22 +155,34 @@ async fn main() {
             position.y = screen_height() - sprite_size; //ajustamos al borde (exacto?)
             vel_y = 0.0;
             is_grounded = true;
+            // BUG ó feature?
+            // reinicia el frame al tocar suelo
+            // current_frame = 0;
+            // timer = 0.0;
         }
 
         // lógica de la animación durante el salto (cambiar el frame)
         //TO FIX
         timer += dt;
+
         if timer >= frame_speed {
             timer = 0.0;
             current_frame += 1;
 
-            // Calcula el total de frames de la textura que se está dibujando AHORA
+            // calcula el total de frames de la textura
+            // que se está dibujando
             let max_frames = (texture.width() / sprite_size) as usize;
 
             if current_frame >= max_frames {
-                current_frame = 0;
-                // ó si quieres congelarlo
-                //current_frame = max_frames - 1;
+                if !is_grounded {
+                    // si estamos en el aire (jump o fall)
+                    // nos congelamos en el último frame
+                    current_frame = max_frames - 1;
+                } else {
+                    // si estamos en el suelo (walk, run, idle)
+                    // hacemos el bucle normal a 0
+                    current_frame = 0;
+                }
             }
         }
 

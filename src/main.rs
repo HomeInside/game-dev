@@ -18,6 +18,7 @@ async fn main() {
     // tienen el mismo tamaño y la misma cantidad de frames
     let texture_walk: Texture2D = load_texture("assets/male_hero-walk.png").await.unwrap();
     let texture_run: Texture2D = load_texture("assets/male_hero-run.png").await.unwrap();
+    let texture_idle: Texture2D = load_texture("assets/male_hero-idle.png").await.unwrap();
 
     let frame_width = texture_walk.width();
 
@@ -41,20 +42,33 @@ async fn main() {
             speed = 200.0;
             facing_right = true;
         }
+
         if is_key_down(KeyCode::Left) {
             speed = -200.0;
             facing_right = false;
         }
 
-        // Elegir textura y velocidad según el estado
+        // Elegir textura y velocidad según el estado.
         // aqui se valida si se presiona la tecla Shift,
-        // para que el jugador "corra" y 'frame_speed' cambia
-        // el frame cada X segundos, segun si camina o corre
-        let (texture, frame_speed) = if is_key_down(KeyCode::LeftShift) {
-            (&texture_run, 0.08)
+        // para que el jugador "corra".
+        // 'frame_speed' cambia el frame cada X segundos,
+        // segun si camina o corre.
+        // Si me muevo, corro ó camino.
+        // Si NO me muevo, hago `idle` (resposo/quieto)
+        let (texture, frame_speed) = if is_key_down(KeyCode::Right) || is_key_down(KeyCode::Left) {
+            // Si estamos moviendo el jugador, decidimos entre correr ó caminar
+            if is_key_down(KeyCode::LeftShift) {
+                // "corre"
+                (&texture_run, 0.08)
+            } else {
+                // "camina"
+                (&texture_walk, 0.12)
+            }
         } else {
-            // Si no, "camina"
-            (&texture_walk, 0.12)
+            // estamos en resposo
+            // se define una velocidad tranquila para
+            // que el jugador "respire"
+            (&texture_idle, 0.20)
         };
 
         position.x += speed * dt;
@@ -76,7 +90,7 @@ async fn main() {
 
         // 6. Dibujar la textura recortada (el frame, usando DrawTextureParams)
         draw_texture_ex(
-            &texture,
+            texture,
             position.x,
             position.y,
             WHITE,

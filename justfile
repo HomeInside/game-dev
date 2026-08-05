@@ -13,5 +13,8 @@ watch: fmt
 c: fmt
 	watchexec -c -w src -r cargo check
 
+build: check
+	cargo build
+
 gitc:
     git fsck && git gc --prune=now --aggressive && git count-objects -vH

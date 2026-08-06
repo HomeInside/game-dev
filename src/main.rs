@@ -1,4 +1,4 @@
-use macroquad::color::WHITE;
+use macroquad::color::{BLACK, WHITE};
 use macroquad::file::load_string;
 use macroquad::math::{Rect /*vec2*/};
 use macroquad::texture::{FilterMode, load_texture};
@@ -64,7 +64,7 @@ async fn main() {
     }
 
     loop {
-        clear_background(WHITE);
+        clear_background(BLACK);
         //let dt = get_frame_time();
         //draw_texture_ex(&tileset, 0.0, 0.0, WHITE, DrawTextureParams { ..Default::default() });
         // cargar el layer base
@@ -74,7 +74,7 @@ async fn main() {
             Rect::new(0.0, 0.0, screen_width(), screen_height()),
             None,
         );
-        
+
         // cargar el layer del mapa ppal
         tiled_map.draw_tiles(
             "terrain",

@@ -1,3 +1,5 @@
+#![allow(clippy::all)]
+
 use super::layer;
 use super::layer::Layer;
 use nanoserde::DeJson;

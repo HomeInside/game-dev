@@ -1,3 +1,5 @@
+#![allow(clippy::all)]
+
 //https://github.com/not-fl3/macroquad/tree/master/tiled
 //https://github.com/not-fl3/macroquad/commit/4385146094126f68dfa28ff9196053d9b4d5bb10
 

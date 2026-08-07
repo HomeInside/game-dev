@@ -1,3 +1,5 @@
+#![allow(clippy::all)]
+
 use super::Property;
 use nanoserde::DeJson;
 
@@ -63,6 +65,8 @@ pub struct Object {
     pub gid: Option<u32>,
     pub ellipse: Option<bool>,
     pub polygon: Option<Vec<PolyPoint>>,
+    // TODO
+    pub text: Option<Text>,
 
     pub properties: Vec<Property>,
     pub rotation: f32,
@@ -79,4 +83,38 @@ pub struct Object {
 pub struct PolyPoint {
     pub x: f32,
     pub y: f32,
+}
+
+// TODO nueva estructura
+/*
+#[derive(Clone, Debug, DeJson)]
+#[nserde(default)]
+pub struct Text {
+    pub text: String,
+
+    pub fontfamily: String,
+
+    pub pixelsize: i32,
+
+    pub wrap: bool,
+
+    pub color: Option<String>,
+
+    pub bold: bool,
+    pub italic: bool,
+    pub underline: bool,
+    pub strikeout: bool,
+    pub kerning: bool,
+
+    pub halign: String,
+    pub valign: String,
+}*/
+
+#[derive(Clone, Debug, DeJson)]
+#[nserde(default)]
+pub struct Text {
+    pub text: String,
+    pub pixelsize: u32,
+    pub wrap: bool,
+    pub color: String,
 }

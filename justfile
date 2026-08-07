@@ -16,5 +16,8 @@ c: fmt
 build: check
 	cargo build
 
+clean:
+	cargo clean && rm -rf ./target && rm ./Cargo.lock
+
 gitc:
     git fsck && git gc --prune=now --aggressive && git count-objects -vH

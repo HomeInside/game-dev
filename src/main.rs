@@ -44,7 +44,7 @@ async fn main() {
     tileset.set_filter(FilterMode::Nearest);
 
     let tiled_map_json = load_string("assets/mapa_export.json").await.unwrap();
-    println!("{}", &tiled_map_json[0..300]);
+    //println!("{}", &tiled_map_json[0..300]);
 
     // para los los objetos cambia de 'objectgroup' a 'objectlayer' en el json
 
@@ -59,12 +59,13 @@ async fn main() {
     //let mut position = vec2(300.0, 250.0);
     //let map_width = tiled_map.raw_tiled_map.width * tiled_map.raw_tiled_map.tilewidth;
     //let map_height = tiled_map.raw_tiled_map.height * tiled_map.raw_tiled_map.tileheight;
-    println!("tileset tamaño: {}x{}", &tileset.width(), &tileset.height());
+    //println!("tileset tamaño: {}x{}", &tileset.width(), &tileset.height());
 
-    println!("layers: {:?}", tiled_map.layers.keys());
-    println!("tilesets: {:?}", tiled_map.tilesets.keys());
+    //println!("layers: {:?}", tiled_map.layers.keys());
+    //println!("tilesets: {:?}", tiled_map.tilesets.keys());
 
     // info del mapa
+    /*
     for (name, layer) in &tiled_map.layers {
         println!(
             "layer={} width={} height={} tiles={}",
@@ -74,15 +75,19 @@ async fn main() {
             layer.data.len()
         );
     }
+    */
 
     // info de los tiles
+    /*
     for (name, layer) in &tiled_map.layers {
         let valid_tiles = layer.data.iter().filter(|t| t.is_some()).count();
 
         println!("{}: {}/{} tiles válidos", name, valid_tiles, layer.data.len());
     }
-
+    */
+    //cargar objetos del mapa
     let layer = &tiled_map.layers["objects1"];
+    /*
     // objetos del mapa
     println!("Objetos: {}", layer.objects.len());
     println!();
@@ -93,6 +98,7 @@ async fn main() {
             println!("objeto tile gid={} x={} y={}", gid, obj.world_x, obj.world_y);
         }
     }
+    */
 
     println!();
     println!("raw_tiled_map");
@@ -121,13 +127,18 @@ async fn main() {
         }
         for obj in &layer.objects {
             println!("{:?}", obj);
-            //println!("{} {}", obj.x, obj.y);
 
-            if let Some(points) = &obj.polygon {
+            /*if let Some(points) = &obj.polygon {
                 println!("puntos: {}", points.len());
+            }*/
+            /*
+            if let Some(text) = &obj.text {
+                println!("{:?}", text);
             }
+            */
         }
     }
+
     println!();
     let raw_layer = tiled_map
         .raw_tiled_map
@@ -282,20 +293,27 @@ async fn main() {
                 draw_rectangle_lines(obj.x, obj.y, obj.width, obj.height, 2.0, RED);
             }
 
-            // aun no se conserva el campo text del objeto Tiled.
-            if obj.ty == "Label" {
-                draw_text("Hola Mundo", obj.x, obj.y + obj.height, 24.0, WHITE);
+            // aun no se conservan algunos campost del objeto Text Tiled.
+            if let Some(text) = &obj.text {
+                let tam: f32 = if text.pixelsize > 0 {
+                    text.pixelsize as f32
+                } else {
+                    24.0
+                };
+
+                let color = if text.color.is_empty() {
+                    BLACK
+                } else {
+                    color_u8!(
+                        u8::from_str_radix(&text.color[1..3], 16).unwrap(),
+                        u8::from_str_radix(&text.color[3..5], 16).unwrap(),
+                        u8::from_str_radix(&text.color[5..7], 16).unwrap(),
+                        255
+                    )
+                };
+
+                draw_text(&text.text, obj.x, obj.y + obj.height, tam, color);
             }
-            /*if obj.ty == "label" {
-                for prop in &obj.properties {
-                    if prop.name == "text" {
-                        if let tiled::PropertyValue::String(value) = &prop.value {
-                            draw_text(value, obj.x, obj.y + obj.height, 24.0, WHITE);
-                        }
-                    }
-                }
-            }
-            */
         }
 
         next_frame().await;

@@ -6,6 +6,7 @@ use macroquad::texture::{FilterMode, load_texture};
 use macroquad::prelude::*;
 use macroquad::shapes::draw_rectangle_lines;
 use macroquad::window::{self, clear_background, next_frame, screen_height, screen_width};
+mod macroquad_tiled;
 use macroquad_tiled as tiled;
 
 const WIDTH: i32 = 1024; //800;

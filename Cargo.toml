@@ -5,7 +5,8 @@ edition = "2024"
 
 [dependencies]
 macroquad = "~0.4.16"
-macroquad-tiled = "~0.2.1"
+# macroquad-tiled = "~0.2.1"
+nanoserde = "~0.1.37"
 
 [profile.dev]
 opt-level = 1

@@ -146,6 +146,7 @@ async fn main() {
         .iter()
         .find(|l| l.name == "objects1")
         .unwrap();
+    let alpha = Color::new(1.0, 0.0, 0.0, 0.0);
 
     loop {
         clear_background(BLACK);
@@ -177,7 +178,8 @@ async fn main() {
                     let a = &points[i];
                     let b = &points[(i + 1) % points.len()];
 
-                    draw_line(obj.x + a.x, obj.y + a.y, obj.x + b.x, obj.y + b.y, 2.0, RED);
+                    //draw_line(obj.x + a.x, obj.y + a.y, obj.x + b.x, obj.y + b.y, 2.0, RED);
+                    draw_line(obj.x + a.x, obj.y + a.y, obj.x + b.x, obj.y + b.y, 2.0, alpha);
                 }
                 // abiertos
                 /*

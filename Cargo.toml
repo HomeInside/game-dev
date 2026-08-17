@@ -1,0 +1,23 @@
+[workspace]
+resolver = "3"
+members = [
+    "hello-world",
+]
+
+[workspace.package]
+rust-version = "1.97"
+homepage = "https://gitlab.com/HomeInside"
+repository = "https://gitlab.com/HomeInside/rs-work"
+license = "MIT OR Apache-2.0"
+edition = "2021"
+
+[profile.dev]
+# Disabling debug info speeds up builds a bunch and we don't rely on it for debugging that much.
+debug = 0
+
+[profile.release]
+lto = true
+opt-level = 2
+strip = true
+debug = false
+panic = "abort"

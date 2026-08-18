@@ -1,7 +1,16 @@
 [workspace]
 resolver = "3"
+
 members = [
-    "macro-pendulum",
+  "macro-ball",
+  "ggez-ball",
+  "macro-hitbox",
+  "ggez-hitbox",
+  "macro-platform",
+  "macro-sprite",
+  "macro-tileset",
+  "macro-pendulum",
+  "macro-box",
 ]
 
 [workspace.package]
@@ -9,7 +18,7 @@ rust-version = "1.97"
 homepage = "https://gitlab.com/HomeInside"
 repository = "https://gitlab.com/HomeInside/rs-work"
 license = "MIT OR Apache-2.0"
-edition = "2021"
+edition = "2024"
 
 [profile.dev]
 # Disabling debug info speeds up builds a bunch and we don't rely on it for debugging that much.

@@ -71,7 +71,8 @@ impl Orbiter {
             orbiter_size,
             shape: OrbiterShape::Rectangle,
             show_orbit,
-            pos: vec2(0.0_f32.cos() * radio_x, 0.0_f32.sin() * radio_y),
+            //pos: vec2(0.0_f32.cos() * radio_x, 0.0_f32.sin() * radio_y),
+            pos: vec2(radio_x, 0.0),
         }
     }
 
@@ -107,13 +108,20 @@ impl Orbiter {
 
     // se dibuja la figura segun su tipo
     pub fn draw(&self) {
-        draw_rectangle(
-            self.pos.x - self.orbiter_size / 2.0,
-            self.pos.y - self.orbiter_size / 2.0,
-            self.orbiter_size,
-            self.orbiter_size,
-            self.color,
-        );
+        match &self.shape {
+            OrbiterShape::Rectangle => {
+                draw_rectangle(
+                    self.pos.x - self.orbiter_size / 2.0,
+                    self.pos.y - self.orbiter_size / 2.0,
+                    self.orbiter_size,
+                    self.orbiter_size,
+                    self.color,
+                );
+            }
+            OrbiterShape::Circle => {
+                draw_circle(self.pos.x, self.pos.y, self.orbiter_size, self.color);
+            }
+        }
 
         // circulo en el centro del orbitador
         draw_circle(self.pos.x, self.pos.y, 3.0, BLACK);
@@ -134,9 +142,19 @@ fn window_conf() -> window::Conf {
 
 #[macroquad::main(window_conf)]
 async fn main() -> Result<(), macroquad::Error> {
-    let mut central_box = CentralBody::new(120.0, 80.0);
+    // el cuerpo central se ubica en el centro de la ventana
+    // cada objeto orbitante, crea un orbita desde el centro
+    // del cuerpo central.
+    //
+    // para esto objetos crearemos una orbita eliptica y no circular.
+    //
 
+    let central_box = CentralBody::new(120.0, 80.0);
+
+    // más cerca del centro de `central_box`
     let mut blue_box = Orbiter::new_rect(150.0, 150.0, 2.0, BLUE, 30.0, true);
+
+    // más alejado del centro de `central_box`
     let mut yellow_circle = Orbiter::new_circle(300.0, 200.0, 0.8, YELLOW, 20.0, true);
 
     loop {

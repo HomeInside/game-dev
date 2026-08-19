@@ -71,7 +71,6 @@ impl Orbiter {
             orbiter_size,
             shape: OrbiterShape::Rectangle,
             show_orbit,
-            //pos: vec2(0.0_f32.cos() * radio_x, 0.0_f32.sin() * radio_y),
             pos: vec2(radio_x, 0.0),
         }
     }
@@ -108,7 +107,7 @@ impl Orbiter {
 
     // se dibuja la figura segun su tipo y la orbita
     pub fn draw(&self, center: Vec2, show_orbit: bool) {
-        // para todos los objetos se dibuja una elipse
+        // para todos los objetos, se dibuja una elipse
         // aquí se puede validar que tipo de objeto en particular
         // es, y decidir dibujar una elipse ó un circulo
         if show_orbit && self.show_orbit {
@@ -134,27 +133,34 @@ impl Orbiter {
         draw_circle(self.pos.x, self.pos.y, 3.0, BLACK);
     }
 
-    /// macroqaud no tiene una función nativa para dibujar elipses
-    /// asi que usamos segmentos (líneas limitada por dos puntos),
-    // calculando varios puntos alrededor luego conectandolos
+    // la función `draw_ellipse_lines` de Macroquad, no permite
+    // enviar el número de segmentos, asi que usamos una variación
+    // de la función original, con segmentos (líneas limitada por dos puntos),
+    // calculando varios puntos alrededor y luego conectandolos
     // para simular la elipse.
     // entre más segmentos, más "definida" parecerá la elipse, con
     // pocos segmentos se vería como un polígono.
-    fn draw_ellipse(&self, centro: Vec2) {
+    fn draw_ellipse(&self, center: Vec2) {
+        // función de Macroquad
+        // draw_ellipse_lines(center.x, center.y, self.radio_x, self.radio_y, 0.0, 1.5, GRAY);
+
+        //
+        //nuestra aproximación
+        //
         let total_segments: usize = 96;
-        let paso = 2.0 * std::f32::consts::PI / total_segments as f32;
+        let step = 2.0 * std::f32::consts::PI / total_segments as f32;
 
         for i in 0..total_segments {
-            // ángulo del inicio del segmento.
-            let a1 = i as f32 * paso;
-            // ángulo final del segmento.
-            let a2 = (i + 1) as f32 * paso;
+            // ángulo inicial del segmento
+            let a1 = i as f32 * step;
+            // ángulo final del segmento
+            let a2 = (i + 1) as f32 * step;
 
             // calculo de la elipse
-            let p1 = vec2(centro.x + self.radio_x * a1.cos(), centro.y + self.radio_y * a1.sin());
-            let p2 = vec2(centro.x + self.radio_x * a2.cos(), centro.y + self.radio_y * a2.sin());
+            let p1 = vec2(center.x + self.radio_x * a1.cos(), center.y + self.radio_y * a1.sin());
+            let p2 = vec2(center.x + self.radio_x * a2.cos(), center.y + self.radio_y * a2.sin());
 
-            draw_line(p1.x, p1.y, p2.x, p2.y, 1.5, GRAY);
+            draw_line(p1.x, p1.y, p2.x, p2.y, 1.0, GRAY);
         }
     }
 }
@@ -173,14 +179,14 @@ fn window_conf() -> window::Conf {
 
 #[macroquad::main(window_conf)]
 async fn main() -> Result<(), macroquad::Error> {
-    // el cuerpo central se ubica en el centro de la ventana
+    // el cuerpo central, se ubica en el centro de la ventana
     // cada objeto orbitante, crea un orbita desde el centro
     // del cuerpo central.
     //
-    // para esto objetos crearemos una orbita eliptica y no circular.
+    // para estos objetos crearemos una orbita eliptica y no circular.
     //
 
-    let central_box = CentralBody::new(120.0, 80.0);
+    let mut central_box = CentralBody::new(120.0, 80.0);
 
     // más cerca del centro de `central_box`
     let mut blue_box = Orbiter::new_rect(150.0, 150.0, 2.0, BLUE, 30.0, true);
@@ -193,6 +199,29 @@ async fn main() -> Result<(), macroquad::Error> {
         clear_background(WHITE);
 
         let dt = get_frame_time();
+
+        // mover central_box libremente
+
+        if is_key_down(KeyCode::Right) {
+            central_box.pos.x += 200.0 * dt;
+        }
+
+        if is_key_down(KeyCode::Left) {
+            central_box.pos.x -= 200.0 * dt;
+        }
+
+        if is_key_down(KeyCode::Up) {
+            central_box.pos.y -= 200.0 * dt;
+        }
+
+        if is_key_down(KeyCode::Down) {
+            central_box.pos.y += 200.0 * dt;
+        }
+
+        // mostrar orbita
+        if is_key_pressed(KeyCode::O) {
+            show_orbit = !show_orbit;
+        }
 
         central_box.draw();
         //

@@ -11,6 +11,7 @@ members = [
   "macro-tileset",
   "macro-pendulum",
   "macro-box",
+  "macro-orbit",
 ]
 
 [workspace.package]

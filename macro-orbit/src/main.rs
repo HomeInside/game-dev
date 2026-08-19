@@ -57,7 +57,10 @@ struct Orbiter {
     pos: Vec2,
 }
 
+/// el orbitante puede ser cualquier figura
+/// para este caso implementamos rectangulo y circulos
 impl Orbiter {
+    /// rectangulos
     pub fn new_rect(radio_x: f32, radio_y: f32, speed: f32, color: Color, orbiter_size: f32, show_orbit: bool) -> Self {
         Self {
             radio_x,
@@ -72,6 +75,28 @@ impl Orbiter {
         }
     }
 
+    ///circulos
+    pub fn new_circle(
+        radio_x: f32,
+        radio_y: f32,
+        speed: f32,
+        color: Color,
+        orbiter_size: f32,
+        show_orbit: bool,
+    ) -> Self {
+        Self {
+            radio_x,
+            radio_y,
+            speed,
+            angle: 0.0,
+            color,
+            orbiter_size,
+            shape: OrbiterShape::Circle,
+            show_orbit,
+            pos: vec2(radio_x, 0.0),
+        }
+    }
+
     // calcula la posición orbital para que sea
     // más tipo elipse para nuestro ejemplo
     pub fn update(&mut self, centro: Vec2, dt: f32) {
@@ -80,6 +105,7 @@ impl Orbiter {
         self.pos = centro + offset;
     }
 
+    // se dibuja la figura segun su tipo
     pub fn draw(&self) {
         draw_rectangle(
             self.pos.x - self.orbiter_size / 2.0,
@@ -111,6 +137,7 @@ async fn main() -> Result<(), macroquad::Error> {
     let mut central_box = CentralBody::new(120.0, 80.0);
 
     let mut blue_box = Orbiter::new_rect(150.0, 150.0, 2.0, BLUE, 30.0, true);
+    let mut yellow_circle = Orbiter::new_circle(300.0, 200.0, 0.8, YELLOW, 20.0, true);
 
     loop {
         clear_background(WHITE);
@@ -122,6 +149,8 @@ async fn main() -> Result<(), macroquad::Error> {
         blue_box.update(central_box.pos, dt);
         blue_box.draw();
         //
+        yellow_circle.update(central_box.pos, dt);
+        yellow_circle.draw();
 
         next_frame().await;
     }

@@ -193,7 +193,7 @@ async fn main() -> Result<(), macroquad::Error> {
 
     // más alejado del centro de `central_box`
     let mut yellow_circle = Orbiter::new_circle(300.0, 200.0, 0.8, YELLOW, 20.0, true);
-    let mut show_orbit: bool = true;
+    let mut show_orbit: bool = false;
 
     loop {
         clear_background(WHITE);

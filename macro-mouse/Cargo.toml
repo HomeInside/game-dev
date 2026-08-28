@@ -1,0 +1,13 @@
+[package]
+name = "macro-mouse"
+version = "0.1.0"
+description = "mouse example using macroquad"
+edition = "2024"
+
+[dependencies]
+macroquad = "~0.4.16"
+
+[profile.dev]
+opt-level = 0
+# Disabling debug info speeds up builds a bunch and we don't rely on it for debugging that much.
+debug = 0

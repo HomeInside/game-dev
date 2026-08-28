@@ -12,6 +12,8 @@ members = [
   "macro-pendulum",
   "macro-box",
   "macro-orbit",
+  "macro-mouse",
+  "macro-background",
 ]
 
 [workspace.package]

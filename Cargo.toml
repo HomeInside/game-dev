@@ -14,6 +14,7 @@ members = [
   "macro-orbit",
   "macro-mouse",
   "macro-background",
+  "macro-parallax",
 ]
 
 [workspace.package]

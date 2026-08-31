@@ -74,6 +74,7 @@ async fn gen_tiled_background(texture: &Texture2D) -> RenderTarget {
                     ..Default::default()
                 },
             );
+            //draw_texture(texture, x as f32 * tile_size, y as f32 * tile_size, WHITE);
         }
     }
 

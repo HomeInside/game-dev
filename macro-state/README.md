@@ -195,13 +195,13 @@ La [estructura exacta no importa](https://joshanthony.info/2021/12/06/how-i-stru
 ## Referencias
 
 - [Game state (Macroquad)](https://mq.agical.se/ch8-game-state.html)
-- [What is "game state? (gamedev)"](https://gamedev.stackexchange.com/questions/4005/what-is-game-state)
-- [Game States](https://www.reddit.com/r/gamedev/comments/1b4wog/game_states_what_do_i_need_them_for_and_whats_the/)
+- [What is "game state? (stackexchange)"](https://gamedev.stackexchange.com/questions/4005/what-is-game-state)
+- [Game States (reddit)](https://www.reddit.com/r/gamedev/comments/1b4wog/game_states_what_do_i_need_them_for_and_whats_the/)
 - [Game Mode and Game State (epicgames)](https://dev.epicgames.com/documentation/unreal-engine/game-mode-and-game-state-in-unreal-engine)
 - [Game States (ezengine)](https://ezengine.net/pages/docs/runtime/application/game-state.html)
-- [Game Loop](https://gameprogrammingpatterns.com/game-loop.html)
+- [Game Loop (Game Programming Patterns)](https://gameprogrammingpatterns.com/game-loop.html)
 - [State (refactoring guru)](https://refactoring.guru/design-patterns/state)
-- [Component](https://gameprogrammingpatterns.com/component.html)
+- [Component (Game Programming Patterns)](https://gameprogrammingpatterns.com/component.html)
 - [ASCII Tree Generator](https://asciitree.fr/en/tools/ascii-tree)
 - [asciiflow](https://asciiflow.com/#/)
 - [xkcd.com/927](https://xkcd.com/927/)

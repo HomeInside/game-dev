@@ -5,7 +5,7 @@ just_home := justfile_directory()
 set windows-shell := ["pwsh.exe", "-NoLogo", "-Command"]
 
 # globals vars
-PROJECT_NAME := "macro-parallax"
+PROJECT_NAME := "macro-state"
 #
 CARGO_TERM_COLOR := "always"
 

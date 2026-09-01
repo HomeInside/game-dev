@@ -15,6 +15,7 @@ members = [
   "macro-mouse",
   "macro-background",
   "macro-parallax",
+  "macro-state",
 ]
 
 [workspace.package]

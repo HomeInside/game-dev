@@ -5,6 +5,8 @@ Este repositorio reúne varios ejercicios de temas relevantes para el desarrollo
 
 ## Ejercicios propuestos
 
+Los ejemplos pueden estar en un lenguaje u otro, pero los conceptos son transversales.
+
 ### En Rust
 Los ejercicios en [Rust](https://rust-lang.org/) están principalmente desarrollados con:
 
@@ -14,15 +16,21 @@ Los ejercicios en [Rust](https://rust-lang.org/) están principalmente desarroll
 así que contienen el prefijo `macro-xxx` ó `ggez-xxx`, para diferenciarlos.
 
 
-### C++
+### En C++
 Los ejercicios en [C++ (C++ 20 en adelante)](https://isocpp.org/) están principalmente desarrollados con:
 
-- [raylib](https://www.raylib.com/)
 - [SFML 3.x](https://www.sfml-dev.org/)
+- [raylib](https://www.raylib.com/)
 
 así que contienen el prefijo `raylib-xxx` ó `sfml-xxx`, para diferenciarlos.
 
-muchos ejemplos, pueden estar en un lenguaje u otro, pero conceptos son transversales.
+
+### En Javascript/Typescript
+Los ejercicios en [Javascript](https://developer.mozilla.org/es/docs/Web/JavaScript)/[Typescript](https://www.typescriptlang.org/) están principalmente desarrollados con:
+
+- [Phaser](https://phaser.io/)
+
+así que contienen el prefijo `phaser-xxx`, para diferenciarlos.
 
 
 ## Como contribuir
@@ -42,7 +50,7 @@ Este repositorio es un monorepo con repositorios hijos en subcarpetas **sin perd
 ## Requisitos
 
  - [Git](https://git-scm.com/) **2.55.x** ó superior
- - [just](https://github.com/casey/just) **1.47.x** ó superior
+ - [Just (opcional pero recomendado)](https://github.com/casey/just) **1.47.x** ó superior
  
 - Repositorios hijos accesibles localmente (o remotes fetchables)
 

@@ -5,18 +5,15 @@ use ggez::conf;
 use ggez::event::{self, EventHandler};
 use ggez::glam::Vec2;
 use ggez::graphics::{self, Color, DrawMode, DrawParam, Mesh};
-use ggez::{Context, /*ContextBuilder,*/ GameResult};
+use ggez::{Context, GameResult};
 use rand::prelude::*;
 use std::mem;
+
 const WIDTH: f32 = 800.0;
 const HEIGHT: f32 = 600.0;
 const BALL_RADIUS: f32 = 10.0;
-
 const N: usize = 25; //max 100
-//porque tienes círculos pequeños y colisiones. A más pasos:
 
-//menos probabilidad de atravesarse,
-//colisiones más estables.
 const PHYSICS_DT: f32 = 1.0 / 120.0; //60
 
 struct Ball {
@@ -28,11 +25,11 @@ struct Ball {
 }
 
 impl Ball {
-    // 1.
-    fn new(x: f32, y: f32) -> Self {
+    #[allow(dead_code)]
+    fn new() -> Self {
         Self {
-            x: x, //50.0,
-            y: y, //50.0,
+            x: 50.0,
+            y: 50.0,
             vx: 300.0,
             vy: 180.0,
             hit_timer: 0.0,
@@ -40,8 +37,13 @@ impl Ball {
     }
 
     pub fn update(&mut self, dt: f32) {
+        // calculamos el movimiento: `posición = velocidad × tiempo`
         self.x += self.vx * dt;
         self.y += self.vy * dt;
+
+        // rebote en los bordes
+        // si la pelota sobrepasa algun borde (de la ventana)
+        // se invierte la posición y se cambia la velocidad
 
         if self.x < 0.0 {
             self.x = -self.x;
@@ -61,41 +63,17 @@ impl Ball {
             self.vy = -self.vy;
         }
 
+        // si la pelota ha chocado recientemente, se reduce
+        // el contador de tiempo(hit_timer) para que el
+        // destello amarillo desaparezca gradualmente
         if self.hit_timer > 0.0 {
             self.hit_timer -= dt;
-
-            if self.hit_timer < 0.0 {
-                self.hit_timer = 0.0;
-            }
         }
-        //self.hit_timer = (self.hit_timer - dt).max(0.0);
     }
 
-    // 2.
-    /*fn draw(&self, ctx: &mut Context, canvas: &mut graphics::Canvas) -> GameResult {
-        let color = if self.hit_timer > 0.0 {
-            Color::YELLOW
-        } else {
-            Color::RED
-        };
-
-        let circle = Mesh::new_circle(
-            ctx,
-            DrawMode::fill(),          // También puede ser DrawMode::stroke(2.0)
-            Vec2::new(self.x, self.y), // 200.0, 150.0 Centro
-            BALL_RADIUS,               // Radio
-            0.1,                       // Tolerancia
-            color,                     // Color
-        )?;
-
-        canvas.draw(&circle, DrawParam::default());
-        Ok(())
-    }*/
-
-    // mejora
     fn draw(&self, canvas: &mut graphics::Canvas, mesh: &Mesh) -> GameResult {
-        //println!("hit_timer: {}", self.hit_timer);
-
+        // `clamp` limita el valor (`self.hit_timer`) dentro de un
+        // rango entre un mínimo(`0.0`) y un máximo(`1.0`)
         let t = (self.hit_timer / 0.5).clamp(0.0, 1.0);
 
         let color = Color::new(1.0, t, 0.0, 1.0);
@@ -107,22 +85,31 @@ impl Ball {
         Ok(())
     }
 }
-// Ball
 
+// detecta cuando dos pelotas se tocan y las hace rebotar
 fn handle_collisions(balls: &mut Vec<Ball>) {
     let n = balls.len();
     let min_dist = BALL_RADIUS * 2.0;
 
     for i in 0..n {
         for j in (i + 1)..n {
+            // Rust no permite dos referencias mutables al
+            // mismo vector, `split_at_mut` divide el vector
+            // en dos mitades mutables
             let (left, right) = balls.split_at_mut(j);
 
+            // de esta forma se puede cambiar las propiedades
+            // de `a` y `b` simultáneamente (ya que son de diferentes slices)
             let a = &mut left[i];
             let b = &mut right[0];
+
+            // calcular distancia entre sus centros
+            // usando el teorema de Pitágoras
 
             let dx = b.x - a.x;
             let dy = b.y - a.y;
 
+            // distancia al cuadrado (se puede usar sqrt)
             let dist2 = dx * dx + dy * dy;
 
             if dist2 == 0.0 {
@@ -131,13 +118,20 @@ fn handle_collisions(balls: &mut Vec<Ball>) {
 
             let dist = dist2.sqrt();
 
+            // si la distancia es menor, hay colisión
             if dist < min_dist {
-                // Normal de la colisión
+                // la "normal" es la dirección en la que
+                // ocurre el choque entre las pelotas
+                // al intercambiar velocidades completas (`x` y `y`),
+                // simulamos un choque elástico (casi) perfecto
                 let nx = dx / dist;
                 let ny = dy / dist;
 
-                // Separar las pelotas para que no queden superpuestas
+                // separar las pelotas para que no queden
+                // superpuestas, empujarlas en direcciones opuestas
                 let overlap = (min_dist - dist) * 0.5;
+
+                // se intercambian las velocidades
 
                 a.x -= nx * overlap;
                 a.y -= ny * overlap;
@@ -145,11 +139,20 @@ fn handle_collisions(balls: &mut Vec<Ball>) {
                 b.x += nx * overlap;
                 b.y += ny * overlap;
 
-                // Intercambiar velocidades
+                // intercambiar velocidades
+                // `mem::swap` intercambia los valores de dos
+                // variables sin crear copia, esto requiere
+                // referencias mutables (&mut).
+                // Es más eficiente que hacer
+                // ````
+                // let temp = a.vx;
+                // a.vx = b.vx;
+                // b.vx = temp;
+                // ````
                 mem::swap(&mut a.vx, &mut b.vx);
                 mem::swap(&mut a.vy, &mut b.vy);
 
-                // Destello amarillo durante 150 ms
+                // destello amarillo durante 150 ms
                 a.hit_timer = 0.5; //0.15
                 b.hit_timer = 0.5; //0.15
             }
@@ -193,21 +196,18 @@ fn draw_ball_info(canvas: &mut graphics::Canvas, count: &usize) -> GameResult {
 
 // el struct principal
 struct MyGame {
-    //ball: Ball,
     balls: Vec<Ball>,
-    //mejora
     ball_mesh: Mesh,
     accumulator: f32,
 }
 
 impl MyGame {
-    // 1.
     pub fn new(ctx: &mut Context) -> GameResult<MyGame> {
         let mut rng = rand::rng();
 
         // crear las pelotas
         let balls: Vec<Ball> = (0..N)
-            .map(|_| //Ball::new(), 
+            .map(|_| //Ball::new(),
                 Ball {
                     x: rng.random_range(0.0..WIDTH),
                     y: rng.random_range(0.0..HEIGHT),
@@ -231,21 +231,18 @@ impl MyGame {
 
 impl EventHandler for MyGame {
     fn update(&mut self, ctx: &mut Context) -> GameResult {
-        /*
-        // actualizar el movimiento de la pelota
         let dt = ctx.time.delta().as_secs_f32();
 
-        //self.ball.update(dt);
-        for ball in &mut self.balls {
-            ball.update(dt);
-        }
-        handle_collisions(&mut self.balls);
-        */
-        let dt = ctx.time.delta().as_secs_f32();
-
+        // guarda el "tiempo sobrante" para no
+        // perder frames
         self.accumulator += dt;
         self.accumulator = self.accumulator.min(0.1);
 
+        // sistema físico de paso fijo.
+        // la física siempre avanza en pasos
+        // iguales (según `PHYSICS_DT`)
+        // independientemente de cuántos FPS
+        // tenga el juego.
         while self.accumulator >= PHYSICS_DT {
             for ball in &mut self.balls {
                 ball.update(PHYSICS_DT);
@@ -259,16 +256,13 @@ impl EventHandler for MyGame {
         Ok(())
     }
 
-    // 2.
     fn draw(&mut self, ctx: &mut Context) -> GameResult {
         let mut canvas = graphics::Canvas::from_frame(ctx, Color::BLACK);
 
-        //self.ball.draw(ctx, &mut canvas)?;
         for ball in &self.balls {
-            //ball.draw(ctx, &mut canvas)?;
             ball.draw(&mut canvas, &self.ball_mesh)?;
         }
-        //self.fps_counter = ctx.time.fps();
+
         draw_fps(ctx, &mut canvas)?;
 
         let ball_counter = &self.balls.len();
@@ -279,8 +273,8 @@ impl EventHandler for MyGame {
 }
 
 fn main() -> GameResult {
-    let cb = ggez::ContextBuilder::new("Bouncing Ball", "Helio Studio Games")
-        .window_setup(conf::WindowSetup::default().title("ggez :: Bouncing Ball"))
+    let cb = ggez::ContextBuilder::new("ggez::ball", "Helio Studio Games")
+        .window_setup(conf::WindowSetup::default().title("ggez :: ball"))
         .window_mode(
             conf::WindowMode::default()
                 .dimensions(WIDTH, HEIGHT)
@@ -290,7 +284,6 @@ fn main() -> GameResult {
 
     let (mut ctx, event_loop) = cb.build()?;
 
-    //let state = MyGame::new(&mut ctx);
     let state = MyGame::new(&mut ctx)?;
 
     event::run(ctx, event_loop, state)

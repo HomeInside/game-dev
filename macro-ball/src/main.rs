@@ -1,8 +1,11 @@
+// hide console window on Windows in release builds
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+
 use macroquad::color::{BLACK, Color, WHITE};
 use macroquad::rand::gen_range;
 use macroquad::shapes::draw_circle;
 use macroquad::text::draw_text;
-use macroquad::time::{draw_fps, get_fps, get_frame_time};
+use macroquad::time::{draw_fps, get_frame_time};
 use macroquad::window;
 use std::mem;
 
@@ -22,6 +25,7 @@ struct Ball {
 }
 
 impl Ball {
+    #[allow(dead_code)]
     fn new() -> Self {
         Self {
             x: 50.0,
@@ -31,34 +35,15 @@ impl Ball {
             hit_timer: 0.0,
         }
     }
-    // radio visible
-    #[allow(dead_code)]
-    fn update1(&mut self, dt: f32) {
-        self.x += self.vx * dt;
-        self.y += self.vy * dt;
-
-        // Rebote horizontal
-        if self.x < BALL_RADIUS {
-            self.x = BALL_RADIUS;
-            self.vx = -self.vx;
-        } else if self.x > WIDTH - BALL_RADIUS {
-            self.x = WIDTH - BALL_RADIUS;
-            self.vx = -self.vx;
-        }
-
-        // Rebote vertical
-        if self.y < BALL_RADIUS {
-            self.y = BALL_RADIUS;
-            self.vy = -self.vy;
-        } else if self.y > HEIGHT - BALL_RADIUS {
-            self.y = HEIGHT - BALL_RADIUS;
-            self.vy = -self.vy;
-        }
-    }
 
     pub fn update(&mut self, dt: f32) {
+        // calculamos el movimiento: `posición = velocidad × tiempo`
         self.x += self.vx * dt;
         self.y += self.vy * dt;
+
+        // rebote en los bordes
+        // si la pelota sobrepasa algun borde (de la ventana)
+        // se invierte la posición y se cambia la velocidad
 
         if self.x < 0.0 {
             self.x = -self.x;
@@ -77,12 +62,18 @@ impl Ball {
             self.y = HEIGHT - exceso;
             self.vy = -self.vy;
         }
+
+        // si la pelota ha chocado recientemente, se reduce
+        // el contador de tiempo(hit_timer) para que el
+        // destello amarillo desaparezca gradualmente
         if self.hit_timer > 0.0 {
             self.hit_timer -= dt;
         }
     }
 
     fn draw(&self) {
+        // `clamp` limita el valor (`self.hit_timer`) dentro
+        // de un rango entre un mínimo(`0.0`) y un máximo(`1.0`)
         let t = (self.hit_timer / 0.15).clamp(0.0, 1.0);
 
         let color = Color::new(1.0, t, 0.0, 1.0);
@@ -91,54 +82,30 @@ impl Ball {
     }
 }
 
-fn window_conf() -> window::Conf {
-    window::Conf {
-        window_title: "macroquad :: Bouncing Ball".to_owned(),
-        window_width: WIDTH as i32,
-        window_height: HEIGHT as i32,
-        ..Default::default()
-    }
-}
-fn handle_collisions1(balls: &mut Vec<Ball>) {
-    let n = balls.len();
-
-    for i in 0..n {
-        for j in (i + 1)..n {
-            let (left, right) = balls.split_at_mut(j);
-
-            let a = &mut left[i];
-            let b = &mut right[0];
-
-            let dx = b.x - a.x;
-            let dy = b.y - a.y;
-
-            let dist2 = dx * dx + dy * dy;
-            let min_dist = BALL_RADIUS * 2.0;
-
-            if dist2 < min_dist * min_dist {
-                // Colisión
-                mem::swap(&mut a.vx, &mut b.vx);
-                mem::swap(&mut a.vy, &mut b.vy);
-                a.hit_timer = 0.15;
-                b.hit_timer = 0.15;
-            }
-        }
-    }
-}
+// detecta cuando dos pelotas se tocan y las hace rebotar
 fn handle_collisions(balls: &mut Vec<Ball>) {
     let n = balls.len();
     let min_dist = BALL_RADIUS * 2.0;
 
     for i in 0..n {
         for j in (i + 1)..n {
+            // Rust no permite dos referencias mutables al
+            // mismo vector, `split_at_mut` divide el vector
+            // en dos mitades mutables
             let (left, right) = balls.split_at_mut(j);
 
+            // de esta forma se puede cambiar las propiedades
+            // de `a` y `b` simultáneamente (ya que son de diferentes slices)
             let a = &mut left[i];
             let b = &mut right[0];
+
+            // calcular distancia entre sus centros
+            // usando el teorema de Pitágoras
 
             let dx = b.x - a.x;
             let dy = b.y - a.y;
 
+            // distancia al cuadrado (se puede usar sqrt)
             let dist2 = dx * dx + dy * dy;
 
             if dist2 == 0.0 {
@@ -147,13 +114,20 @@ fn handle_collisions(balls: &mut Vec<Ball>) {
 
             let dist = dist2.sqrt();
 
+            // si la distancia es menor, hay colisión
             if dist < min_dist {
-                // Normal de la colisión
+                // la "normal" es la dirección en la que
+                // ocurre el choque entre las pelotas
+                // al intercambiar velocidades completas (`x` y `y`),
+                // simulamos un choque elástico (casi) perfecto
                 let nx = dx / dist;
                 let ny = dy / dist;
 
-                // Separar las pelotas para que no queden superpuestas
+                // separar las pelotas para que no queden
+                // superpuestas, empujarlas en direcciones opuestas
                 let overlap = (min_dist - dist) * 0.5;
+
+                // se intercambian las velocidades
 
                 a.x -= nx * overlap;
                 a.y -= ny * overlap;
@@ -161,11 +135,20 @@ fn handle_collisions(balls: &mut Vec<Ball>) {
                 b.x += nx * overlap;
                 b.y += ny * overlap;
 
-                // Intercambiar velocidades
+                // intercambiar velocidades
+                // `mem::swap` intercambia los valores de dos
+                // variables sin crear copia, esto requiere
+                // referencias mutables (&mut).
+                // Es más eficiente que hacer
+                // ````
+                // let temp = a.vx;
+                // a.vx = b.vx;
+                // b.vx = temp;
+                // ````
                 mem::swap(&mut a.vx, &mut b.vx);
                 mem::swap(&mut a.vy, &mut b.vy);
 
-                // Destello amarillo durante 150 ms
+                // destello amarillo durante 150 ms
                 a.hit_timer = 0.5; //0.15
                 b.hit_timer = 0.5; //0.15
             }
@@ -173,8 +156,18 @@ fn handle_collisions(balls: &mut Vec<Ball>) {
     }
 }
 
+fn window_conf() -> window::Conf {
+    window::Conf {
+        window_title: "macroquad :: macro-ball".to_owned(),
+        window_width: WIDTH as i32,
+        window_height: HEIGHT as i32,
+        ..Default::default()
+    }
+}
+
 #[macroquad::main(window_conf)]
 async fn main() {
+    // crear las pelotas
     let mut balls: Vec<Ball> = (0..N)
         .map(|_| Ball {
             x: gen_range(0.0, WIDTH),
@@ -184,18 +177,19 @@ async fn main() {
             hit_timer: 0.0,
         })
         .collect();
-    //
-    //const PHYSICS_DT: f32 = 1.0 / 60.0;
-    //let fps = get_fps().clamp(1, 1000) as f32;
-    //let physics_dt = 1.0 / fps;
-    //
-    //let physics_dt = get_frame_time();
 
     let mut accumulator = 0.0;
 
     loop {
+        // guarda el "tiempo sobrante" para no
+        // perder frames
         accumulator += get_frame_time();
 
+        // sistema físico de paso fijo.
+        // la física siempre avanza en pasos
+        // iguales (según `PHYSICS_DT`)
+        // independientemente de cuántos FPS
+        // tenga el juego.
         while accumulator >= PHYSICS_DT {
             for ball in &mut balls {
                 ball.update(PHYSICS_DT);
@@ -211,36 +205,10 @@ async fn main() {
         for ball in &balls {
             ball.draw();
         }
+
         draw_fps();
         draw_text(&format!("Pelotas: {}", balls.len()), 0.0, 30.0, 24.0, WHITE);
 
         window::next_frame().await;
     }
-    /*loop {
-        let dt = get_frame_time();
-
-        for ball in &mut balls {
-            ball.update(dt);
-        }
-        // Colisiones
-        handle_collisions(&mut balls);
-
-        window::clear_background(BLACK);
-
-        // Dibujar todas las pelotas
-        for ball in &balls {
-            ball.draw();
-        }
-
-        draw_text(
-            &format!("Pelotas: {}", balls.len()),
-            20.0,
-            30.0,
-            24.0,
-            WHITE,
-        );
-        draw_text(&format!("FPS: {}", get_fps()), 20.0, 60.0, 30.0, GREEN);
-        //draw_fps();
-        window::next_frame().await;
-    }*/
 }

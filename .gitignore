@@ -59,3 +59,23 @@ rust-project.json
 resources/*
 *.tiled-session
 .cargo/*
+
+#
+build/*
+cmake-build-*
+# raylib repo
+# raylib
+# raylib/*
+
+# raylib static libs
+raylib-6.0_win64_mingw-w64/*
+raylib-6.0_win64_msvc16/*
+raylib-6.0_linux_amd64/*
+
+# raylib-cpp repo
+# raylib-cpp
+# raylib-cpp/*
+
+/*.png
+/*.jpg
+/*.jpeg

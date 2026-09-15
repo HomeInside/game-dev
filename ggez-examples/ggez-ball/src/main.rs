@@ -74,7 +74,7 @@ impl Ball {
     fn draw(&self, canvas: &mut graphics::Canvas, mesh: &Mesh) -> GameResult {
         // `clamp` limita el valor (`self.hit_timer`) dentro de un
         // rango entre un mínimo(`0.0`) y un máximo(`1.0`)
-        let t = (self.hit_timer / 0.5).clamp(0.0, 1.0);
+        let t = (self.hit_timer / 0.15).clamp(0.0, 1.0);
 
         let color = Color::new(1.0, t, 0.0, 1.0);
 

@@ -5,7 +5,8 @@ just_home := justfile_directory()
 set windows-shell := ["pwsh.exe", "-NoLogo", "-Command"]
 
 # globals vars
-PROJECT_NAME := "macro-state"
+#
+PROJECT_NAME := "ggez-hitbox"
 #
 CARGO_TERM_COLOR := "always"
 
@@ -19,11 +20,13 @@ default: help
 
 [group("Dev")]
 fmt:
-	cargo fmt -p {{PROJECT_NAME}}
+	# cargo fmt -p {{PROJECT_NAME}}
+	cargo fmt
 
 [group("Dev")]
 check: fmt
-	cargo check -p {{PROJECT_NAME}}
+	# cargo check -p {{PROJECT_NAME}}
+	cargo check
 
 [group("Dev")]
 clippy: fmt
@@ -54,7 +57,8 @@ rund:
 [group("Dev")]
 [group("Build")]
 build: fmt
-	clear && cargo build -p {{PROJECT_NAME}}
+	#clear && cargo build -p {{PROJECT_NAME}}
+	clear && cargo build
 
 [group("Build")]
 release: fmt

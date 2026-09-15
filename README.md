@@ -22,7 +22,7 @@ Los ejercicios en [C++ (C++ 20 en adelante)](https://isocpp.org/) están princip
 - [SFML 3.x](https://www.sfml-dev.org/)
 - [raylib](https://www.raylib.com/)
 
-así que contienen el prefijo `raylib-xxx` ó `sfml-xxx`, para diferenciarlos.
+así que contienen el prefijo `ray-xxx` ó `sfml-xxx`, para diferenciarlos.
 
 
 ### En Javascript/Typescript

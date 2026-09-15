@@ -7,11 +7,7 @@ just_home := justfile_directory()
 set windows-shell := ["pwsh.exe", "-NoLogo", "-Command"]
 os := os()
 
-#PROJECT_NAME := "ray-ball"
-PROJECT_NAME := "ray_state"
-#PROJECT_NAME := "ray-hitbox"
-#PROJECT_NAME := "ray-render"
-#PROJECT_NAME := "ray-parallax"
+PROJECT_NAME := "ray-render"
 
 CMAKE_BUILD_DIR := if os == "windows" {
   "cmake-build-debug"
@@ -19,7 +15,8 @@ CMAKE_BUILD_DIR := if os == "windows" {
   "build"
 }
 
-import 'test/justfile'
+# for Windows
+# import 'test/justfile'
 
 [doc("📋 Show all recipes")]
 [group("Help")]

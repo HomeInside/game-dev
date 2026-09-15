@@ -3,9 +3,7 @@ resolver = "3"
 
 members = [
   "macro-ball",
-  "ggez-ball",
   "macro-hitbox",
-  "ggez-hitbox",
   "macro-platform",
   "macro-sprite",
   "macro-tileset",

@@ -19,8 +19,8 @@ así que contienen el prefijo `macro-xxx` ó `ggez-xxx`, para diferenciarlos.
 ### En C++
 Los ejercicios en [C++ (C++ 20 en adelante)](https://isocpp.org/) están principalmente desarrollados con:
 
-- [SFML 3.x](https://www.sfml-dev.org/)
 - [raylib](https://www.raylib.com/)
+- ~~[SFML 3.x](https://www.sfml-dev.org/)~~
 
 así que contienen el prefijo `ray-xxx` ó `sfml-xxx`, para diferenciarlos.
 
@@ -28,14 +28,14 @@ así que contienen el prefijo `ray-xxx` ó `sfml-xxx`, para diferenciarlos.
 ### En Javascript/Typescript
 Los ejercicios en [Javascript](https://developer.mozilla.org/es/docs/Web/JavaScript)/[Typescript](https://www.typescriptlang.org/) están principalmente desarrollados con:
 
-- [Phaser](https://phaser.io/)
+- ~~[Phaser](https://phaser.io/)~~
 
 así que contienen el prefijo `phaser-xxx`, para diferenciarlos.
 
 
 ## Como contribuir
 
-- [Estados y Organización](https://github.com/HomeInside/game-dev/tree/master/macro-state), el ejemplo de **macro-state**: un buen lugar para empezar.
+- [Estados y Organización](https://github.com/HomeInside/game-dev/tree/master/macroquad-examples/macro-state), el ejemplo de **macro-state**: un buen lugar para empezar.
 - crea un [fork](https://github.com/HomeInside/game-dev/fork) ó [clona el repo](https://docs.github.com/es/repositories/creating-and-managing-repositories/cloning-a-repository).
 - explica un tema relevante (revisa los ya expuestos aquí), creando un ejercicio en el lenguaje de tu preferencia.
 - documenta.

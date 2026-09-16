@@ -337,6 +337,59 @@ endif()
 copy_mingw_runtime(ray-parallax)
 
 # ==============================================
+# ray_tileset
+# ==============================================
+add_executable(ray_tileset
+        ray_tileset/src/main.cpp
+)
+
+target_include_directories(
+        ray_tileset
+        PRIVATE
+        ray_tileset/src
+        "${RAYLIB_DIR}/include"
+        "${RAYLIB_TILESON}/include"
+        "${RAYLIB_TILESON}/src"
+)
+
+add_subdirectory(raylib-tileson)
+
+if (WIN32)
+    target_link_libraries(
+        ray_tileset
+        PRIVATE
+        "${RAYLIB_DIR}/lib/libraylib.a"
+        raylib-tileson
+        winmm
+    )
+else()
+    # dynamic (.so)
+    target_link_directories(
+        ray_tileset
+        PRIVATE
+        "${RAYLIB_DIR}/lib"
+    )
+
+    target_link_libraries(
+        ray_tileset
+        PRIVATE
+        raylib
+    )
+
+    set_target_properties(
+        ray_tileset
+        PROPERTIES
+        BUILD_RPATH "\$ORIGIN"
+        INSTALL_RPATH "\$ORIGIN"
+        BUILD_WITH_INSTALL_RPATH TRUE
+        INSTALL_RPATH_USE_LINK_PATH FALSE
+        LINK_FLAGS "-Wl,--disable-new-dtags"
+    )
+endif()
+
+copy_mingw_runtime(ray_tileset)
+
+# ==============================================
 # configure for static
 # ==============================================
 if (WIN32)

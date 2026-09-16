@@ -7,7 +7,7 @@ just_home := justfile_directory()
 set windows-shell := ["pwsh.exe", "-NoLogo", "-Command"]
 os := os()
 
-PROJECT_NAME := "ray-render"
+PROJECT_NAME := "ray_tileset"
 
 CMAKE_BUILD_DIR := if os == "windows" {
   "cmake-build-debug"

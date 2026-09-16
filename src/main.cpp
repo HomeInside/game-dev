@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
   InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "[raylib-tileson] example");
   SetTargetFPS(60);
 
-  // Load the map
+  // carga el mapa desde Json
   Map map = LoadTiled("ray_tileset/assets/mapa_export.json");
 
   while (!WindowShouldClose()) {
@@ -27,15 +27,17 @@ int main(int argc, char *argv[]) {
     {
       ClearBackground(RAYWHITE);
 
-      // Draw the map
+      // dibuja el mapa
       DrawTiled(map, 0, 0, WHITE);
+
+      // dibuja el HUD
       draw_hud();
     }
 
     EndDrawing();
   }
 
-  // De-Initialization
+  // Descarga los datos del mapa
   UnloadMap(map);
 
   CloseWindow();

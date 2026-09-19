@@ -488,6 +488,55 @@ endif()
 copy_mingw_runtime(ray_platforms)
 
 # ==============================================
+# ray_sprite
+# ==============================================
+add_executable(ray_sprite
+    ray_sprite/src/main.cpp
+)
+
+target_include_directories(
+    ray_sprite
+    PRIVATE
+    ray_sprite/src
+    "${RAYLIB_DIR}/include"
+)
+
+
+if (WIN32)
+    target_link_libraries(
+        ray_sprite
+        PRIVATE
+        "${RAYLIB_DIR}/lib/libraylib.a"
+        winmm
+    )
+else()
+    # dynamic (.so)
+    target_link_directories(
+        ray_sprite
+        PRIVATE
+        "${RAYLIB_DIR}/lib"
+    )
+
+    target_link_libraries(
+        ray_sprite
+        PRIVATE
+        raylib
+    )
+
+    set_target_properties(
+        ray_sprite
+        PROPERTIES
+        BUILD_RPATH "\$ORIGIN"
+        INSTALL_RPATH "\$ORIGIN"
+        BUILD_WITH_INSTALL_RPATH TRUE
+        INSTALL_RPATH_USE_LINK_PATH FALSE
+        LINK_FLAGS "-Wl,--disable-new-dtags"
+    )
+endif()
+
+copy_mingw_runtime(ray_sprite)
+
+# ==============================================
 # configure for static
 # ==============================================
 if (WIN32)

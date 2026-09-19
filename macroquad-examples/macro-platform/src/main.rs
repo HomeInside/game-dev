@@ -169,7 +169,7 @@ impl Player {
         }
     }
 
-    /// colisiones horizonatales.
+    /// colisiones horizontales.
     pub fn resolve_platform_x(&mut self, platform: Rect) {
         if !self.hitbox.overlaps(&platform) {
             return;

@@ -437,6 +437,56 @@ else()
 endif()
 
 copy_mingw_runtime(ray_mouse)
+
+# ==============================================
+# ray_platforms
+# ==============================================
+add_executable(ray_platforms
+    ray_platforms/src/main.cpp
+)
+
+target_include_directories(
+    ray_platforms
+    PRIVATE
+    ray_platforms/src
+    "${RAYLIB_DIR}/include"
+)
+
+
+if (WIN32)
+    target_link_libraries(
+        ray_platforms
+        PRIVATE
+        "${RAYLIB_DIR}/lib/libraylib.a"
+        winmm
+    )
+else()
+    # dynamic (.so)
+    target_link_directories(
+        ray_platforms
+        PRIVATE
+        "${RAYLIB_DIR}/lib"
+    )
+
+    target_link_libraries(
+        ray_platforms
+        PRIVATE
+        raylib
+    )
+
+    set_target_properties(
+        ray_platforms
+        PROPERTIES
+        BUILD_RPATH "\$ORIGIN"
+        INSTALL_RPATH "\$ORIGIN"
+        BUILD_WITH_INSTALL_RPATH TRUE
+        INSTALL_RPATH_USE_LINK_PATH FALSE
+        LINK_FLAGS "-Wl,--disable-new-dtags"
+    )
+endif()
+
+copy_mingw_runtime(ray_platforms)
+
 # ==============================================
 # configure for static
 # ==============================================

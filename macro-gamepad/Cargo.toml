@@ -1,0 +1,17 @@
+[package]
+name = "macro-gamepad"
+version = "0.1.0"
+description = "gamepad example using macroquad and gilrs"
+edition = "2024"
+
+[dependencies]
+macroquad = "~0.4.16"
+gilrs = "~0.11.2"
+# features: wgi(default), xinput, serde-serialize
+# on windows
+#gilrs = { version = "~0.11.2", default-features = false, features = ["wgi"] }
+
+[profile.dev]
+opt-level = 0
+# Disabling debug info speeds up builds a bunch and we don't rely on it for debugging that much.
+debug = 0

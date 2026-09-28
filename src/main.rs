@@ -4,7 +4,9 @@ use macroquad::prelude::*;
 use macroquad::window::{self, next_frame};
 
 mod rain;
+mod snow;
 use rain::Rain;
+use snow::Snow;
 
 const WIDTH: i32 = 1024;
 const HEIGHT: i32 = 768;
@@ -36,12 +38,48 @@ async fn main() -> Result<(), macroquad::Error> {
     // crear la lluvia
     let mut rain = Rain::new(screen_width, screen_height, MAX_DROPS, rain_color);
 
+    // crear la nieve, densa pero suave
+    let flake_color = Color::new(1.0, 1.0, 1.0, 0.95);
+    let mut snow = Snow::new(screen_width, screen_height, MAX_DROPS, flake_color);
+    let mut set_seasion = 1;
+
+    let winter_img = load_texture("winter-is-coming.png").await.unwrap();
+
     loop {
         let dt = get_frame_time();
 
-        clear_background(back_color);
-        rain.update(dt);
-        rain.draw();
+        if is_key_down(KeyCode::Key1) {
+            set_seasion = 1;
+        } else if is_key_down(KeyCode::Key2) {
+            set_seasion = 2;
+        } else if is_key_down(KeyCode::Key3) {
+            set_seasion = 3;
+        }
+
+        if set_seasion == 1 {
+            clear_background(back_color);
+            rain.update(dt);
+            rain.draw();
+        } else if set_seasion == 2 {
+            clear_background(WHITE);
+            draw_text(
+                "YUKAS el verano aun no llega",
+                screen_width / 2.0 - 250.0,
+                38.0,
+                32.0,
+                LIGHTGRAY,
+            );
+        } else if set_seasion == 3 {
+            clear_background(back_color);
+            draw_texture(
+                &winter_img,
+                (screen_width / 2.0) + 120.0,
+                (screen_height / 2.0) - 50.0,
+                WHITE,
+            );
+            snow.update(dt);
+            snow.draw();
+        }
 
         draw_text(format!("FPS: {}", get_fps()).as_str(), 0.0, 18.0, 32.0, LIGHTGRAY);
         draw_text(

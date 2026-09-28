@@ -6,7 +6,7 @@
 use macroquad::prelude::*;
 use macroquad::rand::gen_range;
 
-//se crean varios tipos de copos
+// se crean varios tipos de copos
 // de nieve para mejorar el aspecto
 // visual
 #[derive(Clone, Copy)]
@@ -49,6 +49,8 @@ struct SnowFlake {
     rotation: f32,
     // desfase para la oscilación individual
     phase: f32,
+    // oscilación, cuánto se mueve de lado
+    sway: f32,
 
     alpha_color: f32,
     color: Color,
@@ -105,7 +107,6 @@ impl SnowFlake {
     }
 
     pub fn new(width: f32, height: f32) -> Self {
-        let depth: f32 = gen_range(0.0_f32, 1.0_f32).powf(1.5);
         let get_measures = Self::get_measures();
 
         Self {
@@ -117,6 +118,7 @@ impl SnowFlake {
             height,
             rotation: gen_range(0.0, std::f32::consts::TAU),
             phase: gen_range(0.0, std::f32::consts::TAU),
+            sway: gen_range(8.0, 22.0),
             alpha_color: get_measures.alpha,
             color: get_measures.color,
             kind: get_measures.kind,
@@ -134,15 +136,11 @@ impl SnowFlake {
     pub fn update(&mut self, dt: f32) {
         let (wind_speed, time) = self.get_wind_speed();
 
-        //let vx = wind_speed * self.wind;
-        let vx = wind_speed * dt;
-
         self.pos.y += self.speed * dt;
 
-        self.pos.x += (time * 1.5 + self.phase).sin() * 15.0 * dt; //10.0
+        self.pos.x += (time * 1.5 + self.phase).sin() * self.sway * dt;
 
-        //self.pos.x += wind * dt;
-        self.pos.x += vx;
+        self.pos.x += wind_speed * dt;
 
         // rotación lenta para los copos tipo "Flake"
         self.rotation += 0.5 * dt;
@@ -365,14 +363,14 @@ impl Snow {
     }
 
     pub fn update(&mut self, dt: f32) {
-        for f in &mut self.flakes {
-            f.update(dt);
+        for snow_flakes in &mut self.flakes {
+            snow_flakes.update(dt);
         }
     }
 
     pub fn draw(&self) {
-        for f in &self.flakes {
-            f.draw();
+        for snow_flakes in &self.flakes {
+            snow_flakes.draw();
         }
     }
 }

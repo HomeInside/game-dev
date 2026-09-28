@@ -5,6 +5,92 @@ use macroquad::prelude::*;
 use macroquad::rand::gen_range;
 use macroquad::window::{self, next_frame};
 
+// efecto de salpicado
+struct Splash {
+    pos: Vec2,
+    life: f32,
+    max_life: f32,
+    scale: f32,
+    // Velocidad de las dos gotitas que saltan.
+    droplets: [Vec2; 2],
+}
+
+impl Splash {
+    fn new(x: f32, floor_y: f32, depth: f32) -> Self {
+        let scale = if depth < 0.35 {
+            0.3 // 0.5 // lejos
+        } else if depth < 0.75 {
+            0.5 // 1.0 // media
+        } else {
+            1.0 // 1.5 // cerca
+        };
+
+        Self {
+            pos: vec2(x, floor_y),
+            life: 0.15,
+            max_life: 0.15,
+            //
+            scale,
+
+            /*droplets: [
+                vec2(-gen_range(8.0, 14.0), -gen_range(8.0, 14.0)),
+                vec2(gen_range(8.0, 14.0), -gen_range(8.0, 14.0)),
+            ],*/
+            droplets: [
+                vec2(-gen_range(25.0, 45.0), -gen_range(25.0, 45.0)),
+                vec2(gen_range(25.0, 45.0), -gen_range(25.0, 45.0)),
+            ],
+        }
+    }
+
+    fn update(&mut self, dt: f32) {
+        self.life -= dt;
+    }
+
+    fn draw(&self, color: Color) {
+        let t = 1.0 - self.life / self.max_life;
+
+        // La salpicadura se abre horizontalmente.
+        /*
+        let width = 12.0 * t;
+        let height = 6.0 * (1.0 - t);
+        */
+        //
+        let width = 12.0 * self.scale * t;
+        let height = 6.0 * self.scale * (1.0 - t);
+
+        draw_line(
+            self.pos.x - width,
+            self.pos.y,
+            self.pos.x,
+            self.pos.y - height,
+            1.0,
+            color,
+        );
+
+        draw_line(
+            self.pos.x,
+            self.pos.y - height,
+            self.pos.x + width,
+            self.pos.y,
+            1.0,
+            color,
+        );
+
+        // Las dos gotitas salen disparadas.
+        for velocity in self.droplets {
+            //let pos = self.pos + velocity * t;
+            let pos = self.pos + velocity * t * self.scale;
+
+            draw_circle(pos.x, pos.y, 1.0, color);
+        }
+    }
+
+    fn is_alive(&self) -> bool {
+        self.life > 0.0
+    }
+}
+
 struct Raindrop {
     pos: Vec2,
     // profundidad visual
@@ -157,6 +243,7 @@ pub struct Rain {
     height: f32,
     rain_color: Color,
     drops: Vec<Raindrop>,
+    splashes: Vec<Splash>,
 }
 
 impl Rain {
@@ -178,6 +265,7 @@ impl Rain {
             height,
             rain_color,
             drops,
+            splashes: Vec::new(), //vacío inicialmente
         }
     }
 
@@ -189,16 +277,31 @@ impl Rain {
             // la ventana (screen_height)
             // se almacena la posicion donde estaba cuando llegó
             if raind_drop.pos.y > self.height {
+                // agregar la posicion de la gota de lluvia para
+                // crear el efecto
+                self.splashes
+                    .push(Splash::new(raind_drop.pos.x, self.height, raind_drop.depth));
                 // TO FIX validar si se hace aqui o en RainDrop
                 //raind_drop.pos.y = -raind_drop.length;
                 //raind_drop.pos.x = gen_range(-20.0, self.width + 20.0);
             }
-        } //for
+        }
+
+        for splash in &mut self.splashes {
+            splash.update(dt);
+        }
+
+        // TODO revisar en space_crab como se hace
+        // eliminar las animaciones que ya pasaron
+        self.splashes.retain(Splash::is_alive);
     }
 
     pub fn draw(&self) {
         for raind_drop in &self.drops {
             raind_drop.draw();
+        }
+        for splash in &self.splashes {
+            splash.draw(self.rain_color);
         }
     }
 }

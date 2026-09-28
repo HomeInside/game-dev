@@ -24,13 +24,37 @@ struct SnowFlake {
 }
 
 impl SnowFlake {
+    fn get_measures() -> (f32, f32, f32) {
+        let depth: f32 = gen_range(0.0_f32, 1.0_f32).powf(1.5_f32);
+
+        // la profundidad visual controla la velocidad,
+        // entre mas lejos mas rapido
+        let speed = match depth {
+            d if d < 0.35 => gen_range(15.0, 30.0), //lejos
+            d if d < 0.75 => gen_range(30.0, 55.0), //media
+            _ => gen_range(55.0, 90.0),             //cerca
+        };
+
+        // el tamaño de cada copo de nieve también
+        // depende de la profundidad.
+        let size = match depth {
+            d if d < 0.35 => gen_range(1.0, 1.8),
+            d if d < 0.75 => gen_range(1.9, 2.8),
+            _ => gen_range(2.9, 4.0),
+        };
+
+        (depth, speed, size)
+    }
+
     pub fn new(width: f32, height: f32, color: Color) -> Self {
         let depth: f32 = gen_range(0.0_f32, 1.0_f32).powf(1.5);
+        let get_measures = Self::get_measures();
+
         Self {
             pos: vec2(gen_range(0.0, width), gen_range(-height, height)),
-            depth,
-            speed: 0.5,
-            size: 1.0,
+            depth: get_measures.0,
+            speed: get_measures.1,
+            size: get_measures.2,
             width,
             height,
             color,

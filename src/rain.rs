@@ -151,3 +151,54 @@ impl Raindrop {
         }
     }
 }
+
+pub struct Rain {
+    width: f32,
+    height: f32,
+    rain_color: Color,
+    drops: Vec<Raindrop>,
+}
+
+impl Rain {
+    pub fn new(width: f32, height: f32, max_drops: usize, rain_color: Color) -> Self {
+        /*
+        let drops = (0..max_drops)
+            .map(|_| Raindrop::new(width, height, rain_color))
+            .collect();
+        */
+        //
+        let mut drops: Vec<Raindrop> = Vec::with_capacity(max_drops);
+
+        for _ in 0..max_drops {
+            drops.push(Raindrop::new(width, height, rain_color));
+        }
+
+        Self {
+            width,
+            height,
+            rain_color,
+            drops,
+        }
+    }
+
+    pub fn update(&mut self, dt: f32) {
+        for raind_drop in &mut self.drops {
+            raind_drop.update(dt);
+
+            // si la gota de lluvia llega al final de
+            // la ventana (screen_height)
+            // se almacena la posicion donde estaba cuando llegó
+            if raind_drop.pos.y > self.height {
+                // TO FIX validar si se hace aqui o en RainDrop
+                //raind_drop.pos.y = -raind_drop.length;
+                //raind_drop.pos.x = gen_range(-20.0, self.width + 20.0);
+            }
+        } //for
+    }
+
+    pub fn draw(&self) {
+        for raind_drop in &self.drops {
+            raind_drop.draw();
+        }
+    }
+}

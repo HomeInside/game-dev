@@ -61,9 +61,42 @@ impl SnowFlake {
         }
     }
 
+    fn get_wind_speed(&self) -> f32 {
+        let time = get_time() as f32;
+
+        let wind_speed = 15.0 + (time * 0.2).sin() * 10.0;
+
+        wind_speed
+    }
+
     pub fn update(&mut self, dt: f32) {
-        // Caída vertical (siempre hacia abajo, nunca recta por el viento)
+        let wind_speed = self.get_wind_speed();
+
+        //let vx = wind_speed * self.wind;
+        let vx = wind_speed * dt;
+
         self.pos.y += self.speed * dt;
+
+        self.pos.x += vx;
+
+        // si sale por abajo, reaparece arriba
+        if self.pos.y > self.height + self.size {
+            self.pos.y = -self.size * 2.0;
+
+            self.pos.x = gen_range(-20.0, self.width + 20.0);
+        }
+
+        // si el viento la lleva demasiado lejos
+        // a la izquierda
+        if self.pos.x < -30.0 {
+            self.pos.x = self.width + 10.0;
+        }
+
+        // si el viento la lleva demasiado lejos
+        // a la derecha
+        if self.pos.x > self.width + 30.0 {
+            self.pos.x = -10.0;
+        }
     }
 
     pub fn draw(&self) {

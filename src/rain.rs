@@ -278,7 +278,7 @@ impl Rain {
             // se almacena la posicion donde estaba cuando llegó
             if raind_drop.pos.y > self.height {
                 // agregar la posicion de la gota de lluvia para
-                // crear el efecto
+                // crear el efecto de salpicado
                 self.splashes
                     .push(Splash::new(raind_drop.pos.x, self.height, raind_drop.depth));
                 // TO FIX validar si se hace aqui o en RainDrop
@@ -291,15 +291,17 @@ impl Rain {
             splash.update(dt);
         }
 
-        // TODO revisar en space_crab como se hace
-        // eliminar las animaciones que ya pasaron
-        self.splashes.retain(Splash::is_alive);
+        // eliminar las animaciones que ya
+        // se les agotó el tiempo
+        //self.splashes.retain(|s| s.life > 0.0);
+        self.splashes.retain(|s| s.is_alive());
     }
 
     pub fn draw(&self) {
         for raind_drop in &self.drops {
             raind_drop.draw();
         }
+
         for splash in &self.splashes {
             splash.draw(self.rain_color);
         }

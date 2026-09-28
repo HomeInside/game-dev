@@ -215,7 +215,7 @@ impl Raindrop {
         // La estela representa el movimiento.
         let trail = direction * self.length;
 
-        let (alpha, thickness) = if self.depth < 0.35 {
+        let (_alpha, thickness) = if self.depth < 0.35 {
             (0.25, 0.7) // lejos
         } else if self.depth < 0.75 {
             (0.55, 1.0) // media

@@ -103,6 +103,4 @@ async fn main() -> Result<(), macroquad::Error> {
 
         next_frame().await;
     }
-
-    Ok(())
 }

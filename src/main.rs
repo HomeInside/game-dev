@@ -10,7 +10,6 @@ use snow::Snow;
 
 const WIDTH: i32 = 1024;
 const HEIGHT: i32 = 768;
-const MAX_DROPS: usize = 600;
 
 fn window_conf() -> window::Conf {
     window::Conf {
@@ -35,15 +34,17 @@ async fn main() -> Result<(), macroquad::Error> {
     // color de la lluvia
     // mas gris
     let rain_color = Color::new(224.0 / 255.0, 231.0 / 255.0, 246.0 / 255.0, 150.0 / 255.0);
+
     // crear la lluvia
-    let mut rain = Rain::new(screen_width, screen_height, MAX_DROPS, rain_color);
+    let mut rain = Rain::new(screen_width, screen_height, 600, rain_color);
 
     // crear la nieve, densa pero suave
-    let flake_color = Color::new(1.0, 1.0, 1.0, 0.95);
-    let mut snow = Snow::new(screen_width, screen_height, MAX_DROPS, flake_color);
+    let mut snow = Snow::new(screen_width, screen_height, 800);
+
     let mut set_seasion = 1;
 
     let winter_img = load_texture("winter-is-coming.png").await.unwrap();
+    let vegeta_img = load_texture("vegeta-lluvia.png").await.unwrap();
 
     loop {
         let dt = get_frame_time();
@@ -59,6 +60,16 @@ async fn main() -> Result<(), macroquad::Error> {
         if set_seasion == 1 {
             clear_background(back_color);
             rain.update(dt);
+            draw_texture_ex(
+                &vegeta_img,
+                (screen_width / 2.0) - 720.0,
+                (screen_height / 2.0) - 250.0, //450
+                WHITE,
+                DrawTextureParams {
+                    flip_x: true,
+                    ..Default::default()
+                },
+            );
             rain.draw();
         } else if set_seasion == 2 {
             clear_background(WHITE);
@@ -71,13 +82,13 @@ async fn main() -> Result<(), macroquad::Error> {
             );
         } else if set_seasion == 3 {
             clear_background(back_color);
+            snow.update(dt);
             draw_texture(
                 &winter_img,
                 (screen_width / 2.0) + 120.0,
                 (screen_height / 2.0) - 50.0,
                 WHITE,
             );
-            snow.update(dt);
             snow.draw();
         }
 

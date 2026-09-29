@@ -16,6 +16,7 @@ members = [
   "macro-state",
   "macro-text",
   "macro-gamepad",
+  "macro-seasons",
 ]
 
 [workspace.package]

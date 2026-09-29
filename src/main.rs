@@ -5,8 +5,10 @@ use macroquad::window::{self, next_frame};
 
 mod rain;
 mod snow;
+mod summer;
 use rain::Rain;
 use snow::Snow;
+use summer::Summer;
 
 const WIDTH: i32 = 1024;
 const HEIGHT: i32 = 768;
@@ -18,7 +20,7 @@ fn window_conf() -> window::Conf {
         window_height: HEIGHT,
         high_dpi: true,
         fullscreen: false,
-        window_resizable: true,
+        window_resizable: false,
         ..Default::default()
     }
 }
@@ -40,6 +42,9 @@ async fn main() -> Result<(), macroquad::Error> {
 
     // crear la nieve, densa pero suave
     let mut snow = Snow::new(screen_width, screen_height, 800);
+
+    // crear el verano
+    let mut summer = Summer::new(screen_width, screen_height);
 
     let mut set_seasion = 1;
 
@@ -73,13 +78,8 @@ async fn main() -> Result<(), macroquad::Error> {
             rain.draw();
         } else if set_seasion == 2 {
             clear_background(WHITE);
-            draw_text(
-                "YUKAS el verano aun no llega",
-                screen_width / 2.0 - 250.0,
-                38.0,
-                32.0,
-                LIGHTGRAY,
-            );
+            summer.update(dt);
+            summer.draw(dt);
         } else if set_seasion == 3 {
             clear_background(back_color);
             snow.update(dt);

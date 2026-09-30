@@ -17,6 +17,7 @@ pub struct Summer {
     sky: Texture2D,
     // actua como suelo/piso
     ground_y: f32,
+    sun_img: Texture2D,
 }
 
 impl Summer {
@@ -35,10 +36,11 @@ impl Summer {
         (center, radius)
     }
 
-    pub fn new(width: f32, height: f32) -> Self {
+    pub async fn new(width: f32, height: f32) -> Self {
         let (sun, radius) = Self::tiled_to_circle(740.36, 39.18, 230.55);
         let ground_y = height * 0.76;
         let sky = Self::draw_sky(width as u16, height as u16);
+        let sun_img = load_texture("sun1.png").await.unwrap();
 
         Self {
             width,
@@ -47,22 +49,28 @@ impl Summer {
             radius,
             sky,
             ground_y,
+            sun_img,
         }
     }
 
-    pub fn update(&mut self, dt: f32) {}
+    pub fn update(&mut self, _dt: f32) {}
 
     // el sol, halo y rayos
-    pub fn draw_sun(&self, dt: f32) {
+    pub fn draw_sun(&self, _dt: f32) {
+        let time = get_time() as f32;
+
+        // creamos un efecto del movimiento cada halo
+        let halo_mov = (time * 2.0).sin() * 4.0;
+
         // se crean rayos detrás de los halos y del sol,
         // una linea cada `i` ángulos
         for i in 0..16 {
             let angle = i as f32 * (2.0 * std::f32::consts::PI / 16.0);
 
-            let start = 62.0;
+            let start = 82.0; //62.0;
 
             // para dar efecto de movimiento
-            let end = 122.0 + dt;
+            let end = 172.0 + halo_mov;
 
             let start = self.sun + vec2(angle.cos(), angle.sin()) * start;
             let end = self.sun + vec2(angle.cos(), angle.sin()) * end;
@@ -70,23 +78,44 @@ impl Summer {
             draw_line(start.x, start.y, end.x, end.y, 2.0, Color::new(1.0, 0.9, 0.35, 0.38));
         }
 
-        // externo
-        draw_circle(self.sun.x, self.sun.y, self.radius, Color::new(1.0, 0.82, 0.25, 0.08));
-
-        // medio
+        // halo externo
         draw_circle(
             self.sun.x,
             self.sun.y,
-            self.radius - 30.0,
+            self.radius + halo_mov,
+            Color::new(1.0, 0.82, 0.25, 0.08),
+        );
+
+        let img_size = self.radius * 2.0;
+        let pos = self.sun - vec2(img_size, img_size) * 0.5;
+
+        // colocamos la imagen en el centro del circulo
+        draw_texture_ex(
+            &self.sun_img,
+            pos.x,
+            pos.y,
+            WHITE,
+            DrawTextureParams {
+                dest_size: Some(vec2(img_size, img_size)),
+                ..Default::default()
+            },
+        );
+
+        // halo medio
+        draw_circle(
+            self.sun.x,
+            self.sun.y,
+            (self.radius + 50.0) + halo_mov,
+            //self.radius + halo_mov,
             Color::new(1.0, 0.88, 0.30, 0.14),
         );
 
-        // interno
+        // halo interno
         draw_circle(
             self.sun.x,
             self.sun.y,
-            self.radius - 50.0,
-            Color::new(1.0, 0.90, 0.35, 1.0),
+            (self.radius + 20.0) + halo_mov,
+            Color::new(1.0, 0.88, 0.30, 0.14),
         );
     }
 
@@ -133,8 +162,50 @@ impl Summer {
         sky_texture
     }
 
+    // el piso/suelo es una carretera
+    fn draw_road(&self) {
+        let road_height = self.height - self.ground_y;
+
+        // color del asfalto
+        draw_rectangle(
+            0.0,
+            self.ground_y,
+            self.width,
+            road_height,
+            Color::new(0.32, 0.33, 0.35, 1.0),
+        );
+
+        // bordes de la carretera
+        let edge_top = self.ground_y + 8.0;
+        let edge_bottom = self.height - 8.0;
+
+        // los bordes son amarillos
+        let edge_color = Color::new(0.95, 0.75, 0.10, 1.0);
+
+        draw_rectangle(0.0, edge_top, self.width, 4.0, edge_color);
+
+        draw_rectangle(0.0, edge_bottom, self.width, 4.0, edge_color);
+
+        // colocamos la línea en el centro de la carretera
+        let line = self.ground_y + road_height / 2.0;
+
+        let band = 48.0;
+        let space = 32.0;
+
+        let mut x = 0.0;
+
+        // creamos varias lineas pequeñas blancas
+        while x < self.width {
+            draw_rectangle(x, line - 3.0, band, 6.0, Color::new(0.95, 0.95, 0.85, 1.0));
+
+            x += band + space;
+        }
+    }
+
     pub fn draw(&self, dt: f32) {
         draw_texture(&self.sky, 0.0, 0.0, WHITE);
+
         self.draw_sun(dt);
+        self.draw_road();
     }
 }

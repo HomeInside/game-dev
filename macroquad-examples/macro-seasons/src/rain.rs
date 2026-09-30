@@ -3,7 +3,6 @@
 ///
 use macroquad::prelude::*;
 use macroquad::rand::gen_range;
-use macroquad::window::{self, next_frame};
 
 // efecto de salpicado
 struct Splash {

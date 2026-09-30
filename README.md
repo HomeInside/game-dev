@@ -20,21 +20,14 @@ así que contienen el prefijo `macro-xxx` ó `ggez-xxx`, para diferenciarlos.
 Los ejercicios en [C++ (C++ 20 en adelante)](https://isocpp.org/) están principalmente desarrollados con:
 
 - [raylib](https://www.raylib.com/)
-- ~~[SFML 3.x](https://www.sfml-dev.org/)~~
-
-así que contienen el prefijo `ray-xxx` ó `sfml-xxx`, para diferenciarlos.
 
 
-### En Javascript/Typescript
-Los ejercicios en [Javascript](https://developer.mozilla.org/es/docs/Web/JavaScript)/[Typescript](https://www.typescriptlang.org/) están principalmente desarrollados con:
-
-- ~~[Phaser](https://phaser.io/)~~
-
-así que contienen el prefijo `phaser-xxx`, para diferenciarlos.
+así que contienen el prefijo `ray-xxx`, para diferenciarlos.
 
 
 ## Como contribuir
 
+- no hay mejor lugar que la documentación que ofrece la librería ó framework de tu elección.
 - [Estados y Organización](https://github.com/HomeInside/game-dev/tree/master/macroquad-examples/macro-state), el ejemplo de **macro-state**: un buen lugar para empezar.
 - crea un [fork](https://github.com/HomeInside/game-dev/fork) ó [clona el repo](https://docs.github.com/es/repositories/creating-and-managing-repositories/cloning-a-repository).
 - explica un tema relevante (revisa los ya expuestos aquí), creando un ejercicio en el lenguaje de tu preferencia.
@@ -42,12 +35,87 @@ así que contienen el prefijo `phaser-xxx`, para diferenciarlos.
 - comparte!.
 
 
-## Monorepo
+## Editores de mapas
+
+- [Tiled](https://www.mapeditor.org/)
+- [LDtk](https://ldtk.io/)
+
+
+## Otros lenguajes
+Si el lenguaje que usas no esta aquí, echale un vistazo a:
+
+- C/C++
+	- [SFML 3.x](https://www.sfml-dev.org/)
+	- [Cocos2d-x](https://www.cocos.com/en/cocos2d-x)
+	- raylib tiene bindings [para muchos lenguajes](https://github.com/raysan5/raylib/blob/master/BINDINGS.md)
+	- [SDL](https://www.libsdl.org/)
+	- [Oxygine](https://oxygine.org/)
+	- [Allegro](https://liballeg.org/)
+
+	[... y muchísimos más...](https://gamefromscratch.com/c-c-game-engines-in-2025/)
+
+- Go
+	- [Ebitengine](https://ebitengine.org/)
+	- [Pixel 2](https://github.com/gopxl/pixel)
+	- [Kaiju Engine](https://kaijuengine.com/)
+	- [Engo](https://engoengine.github.io/)
+	[... y muchísimos más...](https://awesome-go.com/game-development/)
+
+- Javascript
+
+	- [Phaser](https://phaser.io/)
+	- [pixijs](https://pixijs.com/)
+	- [melonJS](https://melonjs.org/)
+
+	[... y muchísimos más...](https://gamefromscratch.com/javascript-typescript-game-engines-in-2025/)
+
+- Haxe
+	- [HaxeFlixel](https://haxeflixel.com/)
+	- [Heaps](https://heaps.io/index.html)
+
+- Lua
+	- [LÖVE](https://love2d.org/)
+	- [Solar2D](https://solar2d.com/)
+	- [Defold](https://defold.com/)
+
+- Python
+	- [Pygame-ce](https://pyga.me/)
+	- [Python Arcade](https://api.arcade.academy/en/latest/#)
+	- [Pyglet](https://pyglet.org)
+
+	[... y muchísimos más...](https://gamefromscratch.com/python-game-engines-in-2025/)
+
+
+## Recursos para videojuegos
+
+- [magictools](https://github.com/ellisonleao/magictools)
+- [Kenney](https://kenney.nl/)
+- [Itch](https://itch.io/)
+- [craftpix](https://craftpix.net/)
+- [graphicburger](https://graphicburger.com/)
+- [game-icons](https://game-icons.net/)
+- [piskelapp](https://www.piskelapp.com/)
+- [libresprite](https://libresprite.github.io/)
+- [aseprite](https://www.aseprite.org/)
+- [gamefromscratch](https://gamefromscratch.com/news/)
+
+## Libros y más documentación
+
+- [2D Game Development: From Zero To Hero](https://therealpenaz91.itch.io/2dgd-f0th)
+- [Awesome Game Engine Development](https://github.com/stevinz/awesome-game-engine-dev)
+- [Custom Game Engines](https://github.com/raysan5/custom_game_engines)
+- [gamefromscratch](https://gamefromscratch.com/)
+- [Game Engine Black Book DOOM](https://fabiensanglard.net/gebbdoom/)
+- [The Level Design Book](https://book.leveldesignbook.com/)
+- [3D Game Shaders For Beginners](https://lettier.github.io/3d-game-shaders-for-beginners/index.html)
+
+
+## Acerca de este repositorio(Monorepo)
 
 Este repositorio es un monorepo con repositorios hijos en subcarpetas **sin perder el historial**, usando `git subtree`. Por lo que cada ejercicio puede ser transportado, compilado y ejecutado de forma independiente.
 
 
-## Requisitos
+### Requisitos
 
  - [Git](https://git-scm.com/) **2.55.x** ó superior
  - [Just (opcional pero recomendado)](https://github.com/casey/just) **1.47.x** ó superior

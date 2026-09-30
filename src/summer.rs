@@ -162,9 +162,50 @@ impl Summer {
         sky_texture
     }
 
+    // el piso/suelo es una carretera
+    fn draw_road(&self) {
+        let road_height = self.height - self.ground_y;
+
+        // color del asfalto
+        draw_rectangle(
+            0.0,
+            self.ground_y,
+            self.width,
+            road_height,
+            Color::new(0.32, 0.33, 0.35, 1.0),
+        );
+
+        // bordes de la carretera
+        let edge_top = self.ground_y + 8.0;
+        let edge_bottom = self.height - 8.0;
+
+        // los bordes son amarillos
+        let edge_color = Color::new(0.95, 0.75, 0.10, 1.0);
+
+        draw_rectangle(0.0, edge_top, self.width, 4.0, edge_color);
+
+        draw_rectangle(0.0, edge_bottom, self.width, 4.0, edge_color);
+
+        // colocamos la línea en el centro de la carretera
+        let line = self.ground_y + road_height / 2.0;
+
+        let band = 48.0;
+        let space = 32.0;
+
+        let mut x = 0.0;
+
+        // creamos varias lineas pequeñas blancas
+        while x < self.width {
+            draw_rectangle(x, line - 3.0, band, 6.0, Color::new(0.95, 0.95, 0.85, 1.0));
+
+            x += band + space;
+        }
+    }
+
     pub fn draw(&self, dt: f32) {
         draw_texture(&self.sky, 0.0, 0.0, WHITE);
 
         self.draw_sun(dt);
+        self.draw_road();
     }
 }

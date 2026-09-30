@@ -20,3 +20,4 @@ Este ejercicio utiliza el ejemplo de [partículas](https://github.com/not-fl3/ma
 - [macro-background example](https://github.com/HomeInside/game-dev/blob/master/macroquad-examples/macro-background/src/main.rs)
 - [emoji-cheat-sheet](https://www.webfx.com/tools/emoji-cheat-sheet/)
 - [asciiflow](https://asciiflow.com/#/)
+- [RGB_Color](https://www.rapidtables.com/web/color/RGB_Color.html)

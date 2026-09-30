@@ -44,7 +44,7 @@ async fn main() -> Result<(), macroquad::Error> {
     let mut snow = Snow::new(screen_width, screen_height, 800);
 
     // crear el verano
-    let mut summer = Summer::new(screen_width, screen_height);
+    let mut summer = Summer::new(screen_width, screen_height).await;
 
     let mut set_seasion = 1;
 

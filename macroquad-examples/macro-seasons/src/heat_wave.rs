@@ -13,12 +13,12 @@ use macroquad::rand::gen_range;
 enum HazeKind {
     Shimmer, // línea ondulada vertical fina
     Blob,    // círculo difuso grande
-    Wisp,    // "jirón" alargado (línea gruesa vertical)
+    Wisp,    // "tira" alargado (línea gruesa vertical)
 }
 
 struct HeatWave {
     pos: Vec2,
-    speed: f32,  // velocidad vertical (hacia arriba)
+    speed: f32,  // velocidad vertical
     size: f32,   // grosor / radio
     length: f32, // largo para Shimmer / Wisp
     width: f32,
@@ -28,16 +28,16 @@ struct HeatWave {
     alpha: f32,
     color: Color,
     kind: HazeKind,
-    life: f32, // 0..1 progreso de vida (para desvanecer)
+    life: f32,
     life_speed: f32,
 }
 
 impl HeatWave {
     pub fn new(width: f32, ground_y: f32, height: f32) -> Self {
-        // zona de aparición: solo la franja de la carretera
+        // aparecen solo en la franja de la carretera
         let road_h = height - ground_y;
 
-        // nacen pegados al asfalto, un poco por encima del borde inferior
+        // inician en el asfalto, un poco por encima del borde inferior
         let y = gen_range(ground_y + road_h * 0.4, height - 4.0);
 
         let kind = match gen_range(0, 10) {
@@ -52,8 +52,7 @@ impl HeatWave {
             HazeKind::Wisp => (gen_range(3.0, 6.0), gen_range(30.0, 70.0), gen_range(0.04, 0.10)),
         };
 
-        // el calor sube: velocidad positiva hacia -y (arriba)
-        //let speed = gen_range(25.0, 60.0);
+        // el calor sube
         let speed = gen_range(25.0, 90.0);
 
         Self {
@@ -80,13 +79,12 @@ impl HeatWave {
         // sube
         self.pos.y -= self.speed * dt;
 
-        // turbulencia lateral (shimmer)
+        // el viento afecta el tipo de onda
         self.pos.x += (time * 2.0 + self.phase).sin() * self.turb * dt;
 
-        // vida
         self.life += self.life_speed * dt;
 
-        // si murió o salió por arriba -> reciclar
+        // si sale por arriba, reaparece abajo
         if self.life >= 1.0 || self.pos.y < self.height * 0.35 {
             self.reset();
         }
@@ -100,18 +98,21 @@ impl HeatWave {
             gen_range(0.0, self.width),
             gen_range(self.height - road_h * 0.3, self.height - 2.0),
         );
+
         self.life = 0.0;
         self.phase = gen_range(0.0, std::f32::consts::TAU);
+
         self.alpha = match self.kind {
             HazeKind::Shimmer => gen_range(0.05, 0.15),
             HazeKind::Blob => gen_range(0.03, 0.08),
             HazeKind::Wisp => gen_range(0.04, 0.10),
         };
+
         self.color = Color::new(1.0, 0.92, 0.78, self.alpha);
     }
 
     pub fn draw(&self) {
-        // factor de desvanecimiento: aparece al 15%, se desvanece al final
+        // desvanecimiento
         let fade = {
             let t = self.life;
             if t < 0.15 { t / 0.15 } else { 1.0 - (t - 0.15) / 0.85 }
@@ -123,38 +124,49 @@ impl HeatWave {
 
         match self.kind {
             HazeKind::Shimmer => {
-                // línea ondulada: en lugar de dibujar una sola línea recta,
-                // la dividimos en segmentos y desplazamos cada uno en X con seno
+                // en lugar de dibujar una sola línea recta, la
+                // dividimos en segmentos y la desplazamos
+
                 let segments = 6;
                 let step = self.length / segments as f32;
 
                 let mut prev = self.pos;
+
                 for i in 1..=segments {
                     let t = i as f32 / segments as f32;
+
                     let wave = (t * 6.0 + self.phase + get_time() as f32 * 4.0).sin() * self.turb * 0.15;
                     let p = vec2(self.pos.x + wave, self.pos.y - step * i as f32);
+
                     draw_line(prev.x, prev.y, p.x, p.y, self.size, col);
                     prev = p;
                 }
             }
             HazeKind::Blob => {
-                // círculo difuso: varios círculos concéntricos con alpha decreciente
+                // tipo círculo muy difuso
+
                 for i in 0..3 {
                     let r = self.size * (1.0 - i as f32 * 0.25);
                     let a2 = a * (0.4 - i as f32 * 0.1).max(0.0);
+
                     draw_circle(self.pos.x, self.pos.y, r, Color::new(col.r, col.g, col.b, a2));
                 }
             }
             HazeKind::Wisp => {
-                // línea gruesa que se va afinando y ondulando
+                // línea gruesa que va cambiando de grosor y movimiento
+                // se va afinando y ondulando
+
                 let segments = 5;
                 let step = self.length / segments as f32;
                 let mut prev = self.pos;
+
                 for i in 1..=segments {
                     let t = i as f32 / segments as f32;
                     let wave = (t * 4.0 + self.phase + get_time() as f32 * 3.0).sin() * self.turb * 0.2;
                     let p = vec2(self.pos.x + wave, self.pos.y - step * i as f32);
+
                     let w = self.size * (1.0 - t * 0.7);
+
                     draw_line(prev.x, prev.y, p.x, p.y, w, col);
                     prev = p;
                 }
@@ -163,14 +175,14 @@ impl HeatWave {
     }
 }
 
-pub struct Haze {
+pub struct HeatHaze {
     width: f32,
     height: f32,
     ground_y: f32,
     waves: Vec<HeatWave>,
 }
 
-impl Haze {
+impl HeatHaze {
     pub fn new(width: f32, height: f32, count: usize) -> Self {
         let ground_y = height * 0.76;
 

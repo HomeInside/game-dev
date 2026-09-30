@@ -3,10 +3,12 @@
 use macroquad::prelude::*;
 use macroquad::window::{self, next_frame};
 
+mod heat_wave;
 mod rain;
 mod snow;
 mod summer;
 
+use heat_wave::HeatHaze;
 use rain::Rain;
 use snow::Snow;
 use summer::Summer;
@@ -47,6 +49,9 @@ async fn main() -> Result<(), macroquad::Error> {
     // crear el verano
     let mut summer = Summer::new(screen_width, screen_height).await;
 
+    // efecto de asfalto caliente(brillo de calor)
+    let mut haze = HeatHaze::new(screen_width, screen_height, 300);
+
     let mut set_seasion = 1;
 
     let winter_img = load_texture("winter-is-coming.png").await.unwrap();
@@ -79,8 +84,12 @@ async fn main() -> Result<(), macroquad::Error> {
             rain.draw();
         } else if set_seasion == 2 {
             clear_background(WHITE);
+            clear_background(WHITE);
             summer.update(dt);
+            haze.update(dt);
+
             summer.draw(dt);
+            haze.draw();
         } else if set_seasion == 3 {
             clear_background(back_color);
             snow.update(dt);

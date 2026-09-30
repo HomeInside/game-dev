@@ -6,6 +6,7 @@ use macroquad::window::{self, next_frame};
 mod rain;
 mod snow;
 mod summer;
+
 use rain::Rain;
 use snow::Snow;
 use summer::Summer;

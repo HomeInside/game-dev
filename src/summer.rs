@@ -53,10 +53,10 @@ impl Summer {
         }
     }
 
-    pub fn update(&mut self, dt: f32) {}
+    pub fn update(&mut self, _dt: f32) {}
 
     // el sol, halo y rayos
-    pub fn draw_sun(&self, dt: f32) {
+    pub fn draw_sun(&self, _dt: f32) {
         let time = get_time() as f32;
 
         // creamos un efecto del movimiento cada halo
